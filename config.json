@@ -1,7 +1,35 @@
 {
-  "name": "$name$",
-  "version": "$version$",
+  "name": "SEEBON_spider_server",
+  "version": "1.0.0",
   "dependencies": {
-    $END$
+    "ip_pool_web": "https://auth.kdlapi.com/",
+    "get_token": {
+      "url": "api/get_secret_token",
+      "method": "POST",
+      "content_type": "application/x-www-form-urlencoded","payload": {
+        "secret_id": "o0q7xjwj29708wok2mma",
+        "secret_key": "ev32oy3hyauc9qzvq3tl2itj9v6ahwdp"
+      }
+    },
+    "get_ip": {
+      "url": "api/getdps",
+      "method": "GET",
+      "content_type": "",
+      "payload": {
+        "secret_id": "o0q7xjwj29708wok2mma",
+        "signature": "secret_token",
+        "num": 1,
+        "format": "json",
+        "pt": 2,
+        "f_et": 1
+      }
+    },
+    "database_config": {
+      "ip": "124.70.211.45",
+      "port": 9100,
+      "database": "seebon_subsidy",
+      "username": "root",
+      "password": "chinasoft@123"
+    }
   }
 }
