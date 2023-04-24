@@ -82,7 +82,7 @@ class BuildingIPPool(object):
             else:
                 get_ip_payload = json.loads(get_ip_payload)
         get_ip_payload["signature"] = token_dic["data"]["secret_token"]
-        print(get_ip_payload)
+        # print(get_ip_payload)
         get_ip_response = requests.request(method=get_ip_method,
                                            url=get_ip_url,
                                            headers=get_ip_header,
@@ -92,7 +92,7 @@ class BuildingIPPool(object):
             get_ip_response = json.loads(get_ip_response.content.decode())
             response_code = get_ip_response["code"]
             # print(response_code, type(response_code))
-            print(get_ip_response)
+            # print(get_ip_response)
             if response_code == -1:
                 print("参数错误，请求无效")
             elif response_code == 1:
