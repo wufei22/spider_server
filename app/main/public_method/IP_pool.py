@@ -131,8 +131,8 @@ class BuildingIPPool(object):
                 print(get_ip_response["data"])
                 return get_ip_response["data"]
         except Exception as e:
-            print("获取token失败,接口未连通")
-            raise e
+            print(e)
+            raise ValueError("获取token失败,接口未连通")
 
     # 获取IP主程序
     def main_process(self):
