@@ -1,7 +1,6 @@
-from app import app
 import os
 import sys
-
+from app import app
 
 # 1.获取当前绝对路径
 filepath = os.path.realpath(__file__)
@@ -11,7 +10,7 @@ sys.path.append(os.path.dirname(filepath))
 
 # 定义开启服务的主函数
 def server_main():
-    app.debug = False
+    app.debug = True
     app.config["JSON_AS_ASCII"] = False
     app.run(host='0.0.0.0', port=5080, threaded=True)
 

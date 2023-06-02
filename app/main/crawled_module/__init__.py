@@ -1,1 +1,12 @@
-__all__ = ["selenium_module", "database_module", "main_crawled", "request_module"]
+__all__ = ["selenium_module",
+           "database_module",
+           "main_crawled",
+           "request_module",
+           "attach_handle_module",
+           "loading_img_module",
+           "paging_module",
+           "article_analyze_module",
+           "optical_character_recognition_module",
+           "handle_attachment_module",
+           "crawled_logging_module",
+           "minio_module"]

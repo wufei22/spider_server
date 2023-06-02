@@ -1,38 +1,41 @@
-import os
+import time
+import datetime
+import bs4
 import re
-import pandas as pd
+import requests
+import urllib3
+import base64
+import json
+import os
+from multiprocessing import Pool
+from selenium import webdriver
+from app.main.crawled_module import selenium_module, database_module
+
+urls = [
+    "http://www.python.org",
+    "http://www.python.org/about/",
+    "http://www.onlamp.com/pub/a/python/2003/04/17/metaclasses.html",
+    "http://www.python.org/doc/",
+    "http://www.python.org/download/",
+    "http://www.python.org/getit/",
+    "http://www.python.org/community/",
+    "https://wiki.python.org/moin/",
+]
 
 
-# file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_data.xlsx")
-# # print(file_path)
-# test_data_frame = pd.read_excel(file_path, names=["序号", "省", "城市", "机构", "URL", "关键字", "备注"])
-# # print(test_data_frame)
-# url_data = test_data_frame["URL"]
-# # print(url_data)
-# test_pattern = re.compile("(http://[^/]*)|(https://[^/]*)")
-# for i in url_data:
-#     # print(i)
-#     compiled_url = re.match(pattern=test_pattern, string=i).group()
-#     print(compiled_url)
-
-# a = "核定申请、税收政策、创新"
-# if "、" in a:
-#     b = a.split("、")
-#     print(b, type(b))
-#
-#     # //form/div/a[@class='btn ariaskiptheme']
-#     #
-#     # // *[@ id="searchForm"] / div / a
-#     a = [{'id': 1,
-#           'searched_url_list':
-#               ['http://search.gd.gov.cn/search/mall/755018?keywords=%E6%A0%B8%E5%AE%9A%E7%94%B3%E8%AF%B7',
-#                'http://search.gd.gov.cn/search/mall/755018?keywords=%E7%A8%8E%E6%94%B6%E6%94%BF%E7%AD%96',
-#                'http://search.gd.gov.cn/search/mall/755018?keywords=%E5%88%9B%E6%96%B0']},
-#          {'id': 2,
-#           'searched_url_list':
-#               ['http://search.gd.gov.cn/search/mall/755529?keywords=%E7%94%B3%E6%8A%A5',
-#                'http://search.gd.gov.cn/search/mall/755529?keywords=%E6%89%B6%E6%8C%81']}]
+def get_status_code(url):
+    resp = requests.get(url)
+    print("url:{}\ncode:{}\n{}".format(url, resp.status_code, "-" * 100))
 
 
-
+if __name__ == "__main__":
+    # 维持执行的进程总数为processes，当一个进程执行完毕后会添加新的进程进去
+    p = Pool(10)
+    for url in urls:
+        # 异步开启进程, 非阻塞型, 能够向池中添加进程而不等待其执行完毕就能再次执行循环
+        p.apply_async(func=get_status_code, args=(url,))
+    print("Waiting for all subprocesses done...")
+    p.close()  # 关闭pool, 则不会有新的进程添加进去
+    p.join()  # 必须在join之前close, 然后join等待pool中所有的进程执行完毕
+    print('All subprocesses done.')
 

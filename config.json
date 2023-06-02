@@ -30,6 +30,17 @@
       "database": "seebon_subsidy",
       "username": "root",
       "password": "chinasoft@123"
+    },
+    "redis_config": {
+      "ip": "119.3.152.185",
+      "port": 9103,
+      "password": "chinasoft@123"
+    },
+    "minio_config": {
+      "ip": "119.3.152.185",
+      "port": 9981,
+      "username": "minIo",
+      "password": "minIo123456"
     }
   }
 }
