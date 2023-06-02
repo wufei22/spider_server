@@ -294,14 +294,14 @@ class MainCrawledProcess(object):
     def grading_column(self, website_id):
         field_list = []
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "UPDATE crawled_website_info SET execution_status=0 WHERE id=%d"
+        sql_sentence = "UPDATE crawled_website_info SET execution_status=0 WHERE id=%s"
         my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
         website_info = self.get_url(input_id=website_id)
         if self.grading_first_column(input_info=website_info):
             if self.grading_second_column(input_info=website_info):
                 if self.grading_third_column(input_info=website_info):
                     my_database_module = database_module.DatabaseModule()
-                    sql_sentence = "UPDATE crawled_website_info SET execution_status=1 WHERE id=%d"
+                    sql_sentence = "UPDATE crawled_website_info SET execution_status=1 WHERE id=%s"
                     my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 根据栏目列表爬取文章，并把文章存储进库
@@ -612,18 +612,18 @@ class MainCrawledProcess(object):
         my_crawled_logging_module.start_website_log(website_id=website_id)
         my_database_module = database_module.DatabaseModule()
         field_list.append(website_id)
-        sql_sentence = "UPDATE crawled_website_info SET execution_status=2 WHERE id=%d"
+        sql_sentence = "UPDATE crawled_website_info SET execution_status=2 WHERE id=%s"
         my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
         try:
             self.crawled_article(website_id=website_id)
             self.analyze_article(website_id=website_id)
             my_database_module = database_module.DatabaseModule()
-            sql_sentence = "UPDATE crawled_website_info SET execution_status=3 WHERE id=%d"
+            sql_sentence = "UPDATE crawled_website_info SET execution_status=3 WHERE id=%s"
             my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
             my_crawled_logging_module.end_website_log(website_id=website_id, task_status=2)
         except Exception as e:
             my_database_module = database_module.DatabaseModule()
-            sql_sentence = "UPDATE crawled_website_info SET execution_status=4 WHERE id=%d"
+            sql_sentence = "UPDATE crawled_website_info SET execution_status=4 WHERE id=%s"
             my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
             print(e)
             my_crawled_logging_module.end_website_log(website_id=website_id, task_status=1)

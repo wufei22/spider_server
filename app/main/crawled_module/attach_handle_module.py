@@ -324,7 +324,7 @@ class AttachHandle(object):
         else:
             remark = None
         field_list.append(remark)
-        sql_sentence = "INSERT INTO crawled_column_info( website_id, first_level_column, first_level_column_name, create_time, having_page, in_use, is_deleted, remark) VALUES (%d, %s, %s, %s, %d, %d, %d, %s)"
+        sql_sentence = "INSERT INTO crawled_column_info( website_id, first_level_column, first_level_column_name, create_time, having_page, in_use, is_deleted, remark) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         # print(sql_sentence)
         return my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
@@ -356,7 +356,7 @@ class AttachHandle(object):
             remark = None
         field_list.append(remark)
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "INSERT INTO crawled_column_info( website_id, first_level_column, first_level_column_name, second_level_column, second_level_column_name, create_time, having_page, in_use, is_deleted, remark) VALUES (%d, '%s', '%s', '%s', '%s', '%s', %d, %d, %d, '%s')" % (website_id, first_level_column, first_level_column_name, second_level_column, second_level_column_name, create_time, having_page, in_use, is_deleted, remark)
+        sql_sentence = "INSERT INTO crawled_column_info( website_id, first_level_column, first_level_column_name, second_level_column, second_level_column_name, create_time, having_page, in_use, is_deleted, remark) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         return my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 三级栏目存储进库
@@ -391,7 +391,7 @@ class AttachHandle(object):
             remark = None
         field_list.append(remark)
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "INSERT INTO crawled_column_info( website_id, first_level_column, first_level_column_name, second_level_column, second_level_column_name, third_level_column, third_level_column_name, create_time, having_page, in_use, is_deleted, remark) VALUES (%d, %s, %s, %s, %s, %s, %s, %s, %d, %d, %d, %s)"
+        sql_sentence = "INSERT INTO crawled_column_info( website_id, first_level_column, first_level_column_name, second_level_column, second_level_column_name, third_level_column, third_level_column_name, create_time, having_page, in_use, is_deleted, remark) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         return my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 文章存储进数据库
@@ -413,7 +413,7 @@ class AttachHandle(object):
         is_deleted = article_info["is_deleted"]
         field_list.append(is_deleted)
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "INSERT INTO crawled_article_info( website_id, column_id, url, create_time, having_page, is_analized, in_use, is_deleted) VALUES (%d, %d, %s, %s, %d, %d, 1, %d)"
+        sql_sentence = "INSERT INTO crawled_article_info( website_id, column_id, url, create_time, having_page, is_analized, in_use, is_deleted) VALUES (%s, %s, %s, %s, %s, %s, 1, %s)"
         # print(sql_sentence)
         return my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 

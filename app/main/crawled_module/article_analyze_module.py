@@ -138,7 +138,7 @@ class ArticleAnalyzeModule(object):
         if article_info["article_category"]:
             article_category = article_info["article_category"]
         else:
-            article_category = None
+            article_category = 0
         field_list.append(article_category)
         is_national = article_info["is_national"]
         field_list.append(is_national)
@@ -147,9 +147,10 @@ class ArticleAnalyzeModule(object):
         else:
             article_text = None
         field_list.append(article_text)
+        print(field_list)
         my_database = database_module.DatabaseModule()
-        sql_sentence = "INSERT INTO crawled_analized_article_info( id, url, title, article_government_unit, article_publish_date, having_attachment, effective_date, article_category, is_national, article_text) VALUES (%d, %s, %s, %s, %s, %d, %s, %d, %d, %s)"
-        # print(sql_sentence)
+        sql_sentence = "INSERT INTO crawled_analized_article_info( id, url, title, article_government_unit, article_publish_date, having_attachment, effective_date, article_category, is_national, article_text) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        print(sql_sentence)
         return my_database.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 更新文章信息表字段，将已分析的文章分析状态改为已分析
@@ -158,7 +159,7 @@ class ArticleAnalyzeModule(object):
         article_id = self.article_info["id"]
         my_database_module = database_module.DatabaseModule()
         field_list.append(article_id)
-        sql_sentence = "UPDATE crawled_article_info SET is_analized=1 WHERE id=%d"
+        sql_sentence = "UPDATE crawled_article_info SET is_analized=1 WHERE id=%s"
         my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 文章处理主程序

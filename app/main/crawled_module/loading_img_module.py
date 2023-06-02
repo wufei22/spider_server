@@ -102,7 +102,7 @@ class LoadingImg(object):
         field_list.append(url)
         field_list.append(create_time)
         field_list.append(is_deleted)
-        sql_sentence = "INSERT INTO crawled_column_img_info( website_id, img_path, url, create_time, is_deleted) VALUES (%d, %s, %s, %s, %d)"
+        sql_sentence = "INSERT INTO crawled_column_img_info( website_id, img_path, url, create_time, is_deleted) VALUES (%s, %s, %s, %s, %s)"
         # print(sql_sentence)
         return my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 

@@ -102,7 +102,7 @@ class HandleAttachmentModule(object):
         field_list.append(path)
         field_list.append(create_time)
         field_list.append(is_deleted)
-        sql_sentence = "INSERT INTO crawled_attachment_info( article_id, `name`, `path`, create_time, is_deleted) VALUES (%d, %s, %s, %s, %d)"
+        sql_sentence = "INSERT INTO crawled_attachment_info( article_id, `name`, `path`, create_time, is_deleted) VALUES (%s, %s, %s, %s, %s)"
         # print(sql_sentence)
         return my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 

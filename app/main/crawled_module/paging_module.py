@@ -66,7 +66,7 @@ class PagingModule(object):
         field_list.append(update_user)
         field_list.append(create_time)
         field_list.append(update_time)
-        sql_sentence = "INSERT INTO crawled_column_page_config_info( column_id, column_page_type, column_page_xpath, column_default_page, column_max_page, can_use, is_deleted, create_user, update_user, create_time, update_time) VALUES (%d, %d, %s, %d, %d, %d, %d, %d, %d, %s, %s)"
+        sql_sentence = "INSERT INTO crawled_column_page_config_info( column_id, column_page_type, column_page_xpath, column_default_page, column_max_page, can_use, is_deleted, create_user, update_user, create_time, update_time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         return my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 根据id查询栏目的分页配置
@@ -133,7 +133,7 @@ class PagingModule(object):
         field_list.append(update_user)
         field_list.append(create_time)
         field_list.append(update_time)
-        sql_sentence = "INSERT INTO crawled_article_page_config_info( article_id, article_page_type, article_page_xpath, article_max_page, can_use, is_deleted, create_user, update_user, create_time, update_time) VALUES (%d, %d, %s, %d, %d, %d, %d, %d, %s, %s)"
+        sql_sentence = "INSERT INTO crawled_article_page_config_info( article_id, article_page_type, article_page_xpath, article_max_page, can_use, is_deleted, create_user, update_user, create_time, update_time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         return my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 根据id查询文章的分页配置

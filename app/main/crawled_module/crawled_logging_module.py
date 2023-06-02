@@ -18,7 +18,7 @@ class CrawledLoggingModule(object):
         task_start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         field_list.append(task_start_time)
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "INSERT INTO crawled_log_info( log_type, task_id, start_time, task_status) VALUES (1, %d, %s, 0)"
+        sql_sentence = "INSERT INTO crawled_log_info( log_type, task_id, start_time, task_status) VALUES (1, %s, %s, 0)"
         # print(sql_sentence)
         my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
@@ -33,7 +33,7 @@ class CrawledLoggingModule(object):
         field_list.append(task_status)
         field_list.append(task_id)
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "UPDATE crawled_log_info SET end_time=%s,task_status=%d WHERE log_type=1 AND task_id=%d"
+        sql_sentence = "UPDATE crawled_log_info SET end_time=%s,task_status=%s WHERE log_type=1 AND task_id=%s"
         my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
     @staticmethod
@@ -47,7 +47,7 @@ class CrawledLoggingModule(object):
         field_list.append(task_id)
         field_list.append(website_id)
         field_list.append(task_start_time)
-        sql_sentence = "INSERT INTO crawled_log_info( log_type, task_id, website_id, start_time, task_status) VALUES (2, %d, %d, %s, 0)"
+        sql_sentence = "INSERT INTO crawled_log_info( log_type, task_id, website_id, start_time, task_status) VALUES (2, %s, %s, %s, 0)"
         my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     @staticmethod
@@ -62,7 +62,7 @@ class CrawledLoggingModule(object):
         field_list.append(task_status)
         field_list.append(task_id)
         field_list.append(website_id)
-        sql_sentence = "UPDATE crawled_log_info SET end_time=%s, task_status=%d WHERE log_type=2 AND task_id=%d AND website_id=%d"
+        sql_sentence = "UPDATE crawled_log_info SET end_time=%s, task_status=%s WHERE log_type=2 AND task_id=%s AND website_id=%s"
         my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
     @staticmethod
@@ -77,7 +77,7 @@ class CrawledLoggingModule(object):
         field_list.append(website_id)
         field_list.append(article_id)
         field_list.append(task_start_time)
-        sql_sentence = "INSERT INTO crawled_log_info( log_type, task_id, website_id, article_id, start_time, task_status) VALUES (3, %d, %d, %d, %s, 0)"
+        sql_sentence = "INSERT INTO crawled_log_info( log_type, task_id, website_id, article_id, start_time, task_status) VALUES (3, %s, %s, %s, %s, 0)"
         my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     @staticmethod
@@ -93,7 +93,7 @@ class CrawledLoggingModule(object):
         field_list.append(task_id)
         field_list.append(website_id)
         field_list.append(article_id)
-        sql_sentence = "UPDATE crawled_log_info SET end_time=%s, task_status=%d WHERE log_type=2 AND task_id=%d AND website_id=%d AND article_id=%d"
+        sql_sentence = "UPDATE crawled_log_info SET end_time=%s, task_status=%s WHERE log_type=2 AND task_id=%s AND website_id=%s AND article_id=%s"
         my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
 
