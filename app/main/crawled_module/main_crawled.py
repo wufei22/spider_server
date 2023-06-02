@@ -292,17 +292,17 @@ class MainCrawledProcess(object):
 
     # 采集栏目主方法
     def grading_column(self, website_id):
+        field_list = []
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "UPDATE crawled_website_info SET execution_status=0 WHERE id={id}".format(id=website_id)
-        my_database_module.update_data(sql_sentence=sql_sentence)
+        sql_sentence = "UPDATE crawled_website_info SET execution_status=0 WHERE id=%d"
+        my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
         website_info = self.get_url(input_id=website_id)
         if self.grading_first_column(input_info=website_info):
             if self.grading_second_column(input_info=website_info):
                 if self.grading_third_column(input_info=website_info):
                     my_database_module = database_module.DatabaseModule()
-                    sql_sentence = "UPDATE crawled_website_info SET execution_status=1 WHERE id={id}".format(
-                        id=website_id)
-                    my_database_module.update_data(sql_sentence=sql_sentence)
+                    sql_sentence = "UPDATE crawled_website_info SET execution_status=1 WHERE id=%d"
+                    my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 根据栏目列表爬取文章，并把文章存储进库
     def crawled_article(self, website_id):
@@ -607,22 +607,24 @@ class MainCrawledProcess(object):
 
     # 单个爬虫任务
     def one_crawled_task(self, website_id):
+        field_list = []
         my_crawled_logging_module = crawled_logging_module.CrawledLoggingModule()
         my_crawled_logging_module.start_website_log(website_id=website_id)
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "UPDATE crawled_website_info SET execution_status=2 WHERE id={id}".format(id=website_id)
-        my_database_module.update_data(sql_sentence=sql_sentence)
+        field_list.append(website_id)
+        sql_sentence = "UPDATE crawled_website_info SET execution_status=2 WHERE id=%d"
+        my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
         try:
             self.crawled_article(website_id=website_id)
             self.analyze_article(website_id=website_id)
             my_database_module = database_module.DatabaseModule()
-            sql_sentence = "UPDATE crawled_website_info SET execution_status=3 WHERE id={id}".format(id=website_id)
-            my_database_module.update_data(sql_sentence=sql_sentence)
+            sql_sentence = "UPDATE crawled_website_info SET execution_status=3 WHERE id=%d"
+            my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
             my_crawled_logging_module.end_website_log(website_id=website_id, task_status=2)
         except Exception as e:
             my_database_module = database_module.DatabaseModule()
-            sql_sentence = "UPDATE crawled_website_info SET execution_status=4 WHERE id={id}".format(id=website_id)
-            my_database_module.update_data(sql_sentence=sql_sentence)
+            sql_sentence = "UPDATE crawled_website_info SET execution_status=4 WHERE id=%d"
+            my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
             print(e)
             my_crawled_logging_module.end_website_log(website_id=website_id, task_status=1)
 
@@ -646,7 +648,7 @@ class MainCrawledProcess(object):
         # print(website_id_list)
         # 4.开启多进程
         # 维持执行的进程总数为processes，当一个进程执行完毕后会添加新的进程进去
-        my_po = Pool(3)
+        my_po = Pool(5)
         for website_id in website_id_list:
             # 异步开启进程, 非阻塞型, 能够向池中添加进程而不等待其执行完毕就能再次执行循环
             my_po.apply_async(func=self.one_crawled_task, args=(website_id,))

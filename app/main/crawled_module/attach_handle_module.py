@@ -143,7 +143,7 @@ class AttachHandle(object):
     # 排除所有name长度大于10的标签
     @staticmethod
     def filter_name_with_length(column_name):
-        if len(column_name) <= 6:
+        if len(column_name) <= 10:
             return True
 
     # 排除所有name出现在链接里的标签
@@ -303,78 +303,119 @@ class AttachHandle(object):
     # 一级栏目存储进库
     @staticmethod
     def save_first_column(first_column_info):
+        field_list = []
         my_database_module = database_module.DatabaseModule()
         website_id = first_column_info["website_id"]
+        field_list.append(website_id)
         first_level_column = first_column_info["first_level_column"]
+        field_list.append(first_level_column)
         first_level_column_name = first_column_info["first_level_column_name"]
+        field_list.append(first_level_column_name)
         create_time = first_column_info["create_time"]
+        field_list.append(create_time)
         having_page = first_column_info["having_page"]
+        field_list.append(having_page)
         in_use = first_column_info["in_use"]
+        field_list.append(in_use)
         is_deleted = first_column_info["is_deleted"]
+        field_list.append(is_deleted)
         if first_column_info["remark"]:
             remark = first_column_info["remark"]
         else:
-            remark = 'NULL'
-        sql_sentence = "INSERT INTO crawled_column_info( website_id, first_level_column, first_level_column_name, create_time, having_page, in_use, is_deleted, remark) VALUES (%d, '%s', '%s', '%s', %d, %d, %d, '%s')" % (website_id, first_level_column, first_level_column_name, create_time, having_page, in_use, is_deleted, remark)
+            remark = None
+        field_list.append(remark)
+        sql_sentence = "INSERT INTO crawled_column_info( website_id, first_level_column, first_level_column_name, create_time, having_page, in_use, is_deleted, remark) VALUES (%d, %s, %s, %s, %d, %d, %d, %s)"
         # print(sql_sentence)
-        return my_database_module.add_data(sql_sentence=sql_sentence)
+        return my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 二级栏目存储进库
     @staticmethod
     def save_second_column(second_column_info):
+        field_list = []
         website_id = second_column_info["website_id"]
+        field_list.append(website_id)
         first_level_column = second_column_info["first_level_column"]
+        field_list.append(first_level_column)
         first_level_column_name = second_column_info["first_level_column_name"]
+        field_list.append(first_level_column_name)
         second_level_column = second_column_info["second_level_column"]
+        field_list.append(second_level_column)
         second_level_column_name = second_column_info["second_level_column_name"]
+        field_list.append(second_level_column_name)
         create_time = second_column_info["create_time"]
+        field_list.append(create_time)
         having_page = second_column_info["having_page"]
+        field_list.append(having_page)
         in_use = second_column_info["in_use"]
+        field_list.append(in_use)
         is_deleted = second_column_info["is_deleted"]
+        field_list.append(is_deleted)
         if second_column_info["remark"]:
             remark = second_column_info["remark"]
         else:
-            remark = 'NULL'
+            remark = None
+        field_list.append(remark)
         my_database_module = database_module.DatabaseModule()
         sql_sentence = "INSERT INTO crawled_column_info( website_id, first_level_column, first_level_column_name, second_level_column, second_level_column_name, create_time, having_page, in_use, is_deleted, remark) VALUES (%d, '%s', '%s', '%s', '%s', '%s', %d, %d, %d, '%s')" % (website_id, first_level_column, first_level_column_name, second_level_column, second_level_column_name, create_time, having_page, in_use, is_deleted, remark)
-        return my_database_module.add_data(sql_sentence=sql_sentence)
+        return my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 三级栏目存储进库
     @staticmethod
     def save_third_column(third_column_info):
+        field_list = []
         website_id = third_column_info["website_id"]
+        field_list.append(website_id)
         first_level_column = third_column_info["first_level_column"]
+        field_list.append(first_level_column)
         first_level_column_name = third_column_info["first_level_column_name"]
+        field_list.append(first_level_column_name)
         second_level_column = third_column_info["second_level_column"]
+        field_list.append(second_level_column)
         second_level_column_name = third_column_info["second_level_column_name"]
+        field_list.append(second_level_column_name)
         third_level_column = third_column_info["third_level_column"]
+        field_list.append(third_level_column)
         third_level_column_name = third_column_info["third_level_column_name"]
+        field_list.append(third_level_column_name)
         create_time = third_column_info["create_time"]
+        field_list.append(create_time)
         having_page = third_column_info["having_page"]
+        field_list.append(having_page)
         in_use = third_column_info["in_use"]
+        field_list.append(in_use)
         is_deleted = third_column_info["is_deleted"]
+        field_list.append(is_deleted)
         if third_column_info["remark"]:
             remark = third_column_info["remark"]
         else:
-            remark = 'NULL'
+            remark = None
+        field_list.append(remark)
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "INSERT INTO crawled_column_info( website_id, first_level_column, first_level_column_name, second_level_column, second_level_column_name, third_level_column, third_level_column_name, create_time, having_page, in_use, is_deleted, remark) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, '%s')" % (website_id, first_level_column, first_level_column_name, second_level_column, second_level_column_name, third_level_column, third_level_column_name, create_time, having_page, in_use, is_deleted, remark)
-        return my_database_module.add_data(sql_sentence=sql_sentence)
+        sql_sentence = "INSERT INTO crawled_column_info( website_id, first_level_column, first_level_column_name, second_level_column, second_level_column_name, third_level_column, third_level_column_name, create_time, having_page, in_use, is_deleted, remark) VALUES (%d, %s, %s, %s, %s, %s, %s, %s, %d, %d, %d, %s)"
+        return my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 文章存储进数据库
     @staticmethod
     def save_article(article_info):
+        field_list = []
         website_id = article_info["website_id"]
+        field_list.append(website_id)
         column_id = article_info["column_id"]
+        field_list.append(column_id)
         url = article_info["url"]
+        field_list.append(url)
         create_time = article_info["create_time"]
+        field_list.append(create_time)
         having_page = article_info["having_page"]
+        field_list.append(having_page)
         is_analized = article_info["is_analized"]
+        field_list.append(is_analized)
         is_deleted = article_info["is_deleted"]
+        field_list.append(is_deleted)
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "INSERT INTO crawled_article_info( website_id, column_id, url, create_time, having_page, is_analized, in_use, is_deleted) VALUES (%d, %d, '%s', '%s', %d, %d, 1, %d)" % (website_id, column_id, url, create_time, having_page, is_analized, is_deleted)
-        print(sql_sentence)
-        return my_database_module.add_data(sql_sentence=sql_sentence)
+        sql_sentence = "INSERT INTO crawled_article_info( website_id, column_id, url, create_time, having_page, is_analized, in_use, is_deleted) VALUES (%d, %d, %s, %s, %d, %d, 1, %d)"
+        # print(sql_sentence)
+        return my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 获取所有一级栏目列表
     def get_all_first_column(self):
@@ -442,5 +483,5 @@ if __name__ == '__main__':
     test_data = test_attach_handle.get_all_first_column()
     print(test_data)
     a = [{'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/static/zzzb/zl-zzzb.html', 'create_time': '2023-06-01 16:04:29', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/zyxw/85597.html', 'create_time': '2023-06-01 16:05:52', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/shgfwxzj/queryyezhu/67617.html', 'create_time': '2023-06-01 16:09:15', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/index.html', 'create_time': '2023-06-01 16:10:42', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/ghjh/205310.html', 'create_time': '2023-06-01 16:12:08', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/jgld/208058.html', 'create_time': '2023-06-01 16:13:31', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/ywtb/208990.html', 'create_time': '2023-06-01 16:15:26', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/zyxw/85597.html', 'create_time': '2023-06-01 16:21:44', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/index.html', 'create_time': '2023-06-01 16:23:14', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/ghjh/index.html', 'create_time': '2023-06-01 16:25:39', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/jgld/index.html', 'create_time': '2023-06-01 16:27:06', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/ywtb/index.html', 'create_time': '2023-06-01 16:30:12', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/213879.html', 'create_time': '2023-06-01 16:32:20', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/213470.html', 'create_time': '2023-06-01 16:32:56', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/213468.html', 'create_time': '2023-06-01 16:33:34', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/213873.html', 'create_time': '2023-06-01 16:34:13', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/213875.html', 'create_time': '2023-06-01 16:34:54', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/213869.html', 'create_time': '2023-06-01 16:35:29', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/213871.html', 'create_time': '2023-06-01 16:36:09', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/212744.html', 'create_time': '2023-06-01 16:36:53', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/212742.html', 'create_time': '2023-06-01 16:37:36', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/211453.html', 'create_time': '2023-06-01 16:38:19', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/209764.html', 'create_time': '2023-06-01 16:38:58', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/209542.html', 'create_time': '2023-06-01 16:39:40', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/209532.html', 'create_time': '2023-06-01 16:40:21', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/209534.html', 'create_time': '2023-06-01 16:40:58', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/209535.html', 'create_time': '2023-06-01 16:41:39', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/209543.html', 'create_time': '2023-06-01 16:42:20', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/209524.html', 'create_time': '2023-06-01 16:43:01', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/209536.html', 'create_time': '2023-06-01 16:43:46', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/209544.html', 'create_time': '2023-06-01 16:44:28', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/newxxgk/zcwj/gfxwj/209525.html', 'create_time': '2023-06-01 16:45:04', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/index/5319.html', 'create_time': '2023-06-01 16:45:40', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/index/558.html', 'create_time': '2023-06-01 16:46:24', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/index/64329.html', 'create_time': '2023-06-01 16:47:02', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}, {'website_id': 16, 'column_id': 196, 'url': 'https://www.shgjj.com/html/index/45263.html', 'create_time': '2023-06-01 16:47:41', 'having_page': 0, 'is_analized': 0, 'is_deleted': 1}]
-    for i in a:
-        test_attach_handle.save_article(article_info=i)
+    for ab in a:
+        test_attach_handle.save_article(article_info=ab)

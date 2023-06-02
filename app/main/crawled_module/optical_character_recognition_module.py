@@ -22,6 +22,3 @@ class OpticalCharacterRecognitionModule(object):
         except Exception as e:
             print(e)
             return None
-
-
-

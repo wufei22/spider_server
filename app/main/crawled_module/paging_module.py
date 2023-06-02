@@ -27,6 +27,7 @@ class PagingModule(object):
         :param page_config_info:文章配置字典，格式类似{}
         :return:
         """
+        field_list = []
         my_database_module = database_module.DatabaseModule()
         column_id = page_config_info["column_id"]
         column_page_type = page_config_info["column_page_type"]
@@ -49,13 +50,24 @@ class PagingModule(object):
         if page_config_info["create_time"]:
             create_time = page_config_info["create_time"]
         else:
-            create_time = 'NULL'
+            create_time = None
         if page_config_info["update_time"]:
             update_time = page_config_info["update_time"]
         else:
-            update_time = 'NULL'
-        sql_sentence = "INSERT INTO crawled_column_page_config_info( column_id, column_page_type, column_page_xpath, column_default_page, column_max_page, can_use, is_deleted, create_user, update_user, create_time, update_time) VALUES (%d, %d, '%s', %d, %d, %d, %d, %d, %d, '%s', '%s')" % (column_id, column_page_type, column_page_xpath, column_default_page, column_max_page, can_use, is_deleted, create_user, update_user, create_time, update_time)
-        return my_database_module.update_data(sql_sentence=sql_sentence)
+            update_time = None
+        field_list.append(column_id)
+        field_list.append(column_page_type)
+        field_list.append(column_page_xpath)
+        field_list.append(column_default_page)
+        field_list.append(column_max_page)
+        field_list.append(can_use)
+        field_list.append(is_deleted)
+        field_list.append(create_user)
+        field_list.append(update_user)
+        field_list.append(create_time)
+        field_list.append(update_time)
+        sql_sentence = "INSERT INTO crawled_column_page_config_info( column_id, column_page_type, column_page_xpath, column_default_page, column_max_page, can_use, is_deleted, create_user, update_user, create_time, update_time) VALUES (%d, %d, %s, %d, %d, %d, %d, %d, %d, %s, %s)"
+        return my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 根据id查询栏目的分页配置
     @staticmethod
@@ -87,6 +99,7 @@ class PagingModule(object):
         :param page_config_info:文章配置字典，格式类似{}
         :return:
         """
+        field_list = []
         article_id = page_config_info["article_id"]
         article_page_type = page_config_info["article_page_type"]
         article_page_xpath = page_config_info["article_page_xpath"]
@@ -104,14 +117,24 @@ class PagingModule(object):
         if page_config_info["create_time"]:
             create_time = page_config_info["create_time"]
         else:
-            create_time = 'NULL'
+            create_time = None
         if page_config_info["create_user"]:
             update_time = page_config_info["update_time"]
         else:
-            update_time = 'NULL'
+            update_time = None
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "INSERT INTO crawled_article_page_config_info( article_id, article_page_type, article_page_xpath, article_max_page, can_use, is_deleted, create_user, update_user, create_time, update_time) VALUES (%d, %d, '%s', %d, %d, %d, %d, %d, '%s', '%s')" % (article_id, article_page_type, article_page_xpath, article_max_page, can_use, is_deleted, create_user, update_user, create_time, update_time)
-        return my_database_module.update_data(sql_sentence=sql_sentence)
+        field_list.append(article_id)
+        field_list.append(article_page_type)
+        field_list.append(article_page_xpath)
+        field_list.append(article_max_page)
+        field_list.append(can_use)
+        field_list.append(is_deleted)
+        field_list.append(create_user)
+        field_list.append(update_user)
+        field_list.append(create_time)
+        field_list.append(update_time)
+        sql_sentence = "INSERT INTO crawled_article_page_config_info( article_id, article_page_type, article_page_xpath, article_max_page, can_use, is_deleted, create_user, update_user, create_time, update_time) VALUES (%d, %d, %s, %d, %d, %d, %d, %d, %s, %s)"
+        return my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 根据id查询文章的分页配置
     @staticmethod

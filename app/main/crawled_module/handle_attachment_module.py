@@ -84,21 +84,27 @@ class HandleAttachmentModule(object):
     # 将下载的附件信息存储进数据库
     @staticmethod
     def save_attachment(attachment_info):
+        field_list = []
         my_database_module = database_module.DatabaseModule()
         article_id = attachment_info["article_id"]
         if attachment_info["name"]:
             name = attachment_info["name"]
         else:
-            name = 'NULL'
+            name = None
         if attachment_info["path"]:
             path = attachment_info["path"]
         else:
-            path = 'NULL'
+            path = None
         create_time = attachment_info["create_time"]
         is_deleted = attachment_info["is_deleted"]
-        sql_sentence = "INSERT INTO crawled_attachment_info( article_id, `name`, `path`, create_time, is_deleted) VALUES (%d, '%s', '%s', '%s', %d)" % (article_id, name, path, create_time, is_deleted)
+        field_list.append(article_id)
+        field_list.append(name)
+        field_list.append(path)
+        field_list.append(create_time)
+        field_list.append(is_deleted)
+        sql_sentence = "INSERT INTO crawled_attachment_info( article_id, `name`, `path`, create_time, is_deleted) VALUES (%d, %s, %s, %s, %d)"
         # print(sql_sentence)
-        return my_database_module.add_data(sql_sentence=sql_sentence)
+        return my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 处理附件主程序
     def handle_attachment_main(self, html_src):

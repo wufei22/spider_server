@@ -55,15 +55,13 @@ class ArticleAnalyzeModule(object):
                 meta_content = i["content"]
                 date_pattern = "^\d{4}-\d{1,2}-\d{1,2}"
                 if re.match(pattern=date_pattern, string=meta_content):
-                    print(meta_content)
+                    # print(meta_content)
                     return meta_content
-        else:
-            return "null"
 
     # 获取官方生效日期
     @staticmethod
     def get_article_effective_date():
-        return "2023-05-24 00:00:00"
+        return "1999-04-23 15:47:23"
 
     # 获取文章类别
     @staticmethod
@@ -110,44 +108,58 @@ class ArticleAnalyzeModule(object):
     # 文章解析结果存储进数据库
     @staticmethod
     def save_article_info(article_info):
+        field_list = []
         my_id = article_info["id"]
+        field_list.append(my_id)
         url = article_info["url"]
+        field_list.append(url)
         if article_info["title"]:
             title = article_info["title"]
         else:
-            title = 'NULL'
+            title = None
+        field_list.append(title)
         if article_info["article_government_unit"]:
             article_government_unit = article_info["article_government_unit"]
         else:
-            article_government_unit = 'NULL'
+            article_government_unit = None
+        field_list.append(article_government_unit)
         if article_info["article_publish_date"]:
             article_publish_date = article_info["article_publish_date"]
         else:
-            article_publish_date = 'NULL'
+            article_publish_date = None
+        field_list.append(article_publish_date)
         having_attachment = article_info["having_attachment"]
+        field_list.append(having_attachment)
         if article_info["effective_date"]:
             effective_date = article_info["effective_date"]
         else:
-            effective_date = 'NULL'
+            effective_date = None
+        field_list.append(effective_date)
         if article_info["article_category"]:
             article_category = article_info["article_category"]
         else:
-            article_category = 'NULL'
+            article_category = None
+        field_list.append(article_category)
         is_national = article_info["is_national"]
+        field_list.append(is_national)
         if article_info["article_text"]:
             article_text = article_info["article_text"]
         else:
-            article_text = 'NULL'
+            article_text = None
+        field_list.append(article_text)
         my_database = database_module.DatabaseModule()
-        sql_sentence = "INSERT INTO crawled_analized_article_info( id, url, title, article_government_unit, article_publish_date, having_attachment, effective_date, article_category, is_national, article_text) VALUES (%d, '%s', '%s', '%s', '%s', %d, '%s', %d, %d, '%s')" % (my_id, url, title, article_government_unit, article_publish_date, having_attachment, effective_date, article_category, is_national, article_text)
-        return my_database.add_data(sql_sentence=sql_sentence)
+        sql_sentence = "INSERT INTO crawled_analized_article_info( id, url, title, article_government_unit, article_publish_date, having_attachment, effective_date, article_category, is_national, article_text) VALUES (%d, %s, %s, %s, %s, %d, %s, %d, %d, %s)"
+        # print(sql_sentence)
+        return my_database.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 更新文章信息表字段，将已分析的文章分析状态改为已分析
     def update_article_state(self):
+        field_list = []
         article_id = self.article_info["id"]
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "UPDATE crawled_article_info SET is_analized=1 WHERE id={id}".format(id=article_id)
-        my_database_module.update_data(sql_sentence=sql_sentence)
+        field_list.append(article_id)
+        sql_sentence = "UPDATE crawled_article_info SET is_analized=1 WHERE id=%d"
+        my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 文章处理主程序
     def article_analyze_main(self):

@@ -87,6 +87,7 @@ class LoadingImg(object):
     # 将下载的图片信息存储进数据库
     @staticmethod
     def save_img(img_info):
+        field_list = []
         website_id = img_info["website_id"]
         if img_info["img_path"]:
             img_path = img_info["img_path"]
@@ -96,9 +97,14 @@ class LoadingImg(object):
         create_time = img_info["create_time"]
         is_deleted = img_info["is_deleted"]
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "INSERT INTO crawled_column_img_info( website_id, img_path, url, create_time, is_deleted) VALUES (%d, '%s', '%s', '%s', %d)" % (website_id, img_path, url, create_time, is_deleted)
+        field_list.append(website_id)
+        field_list.append(img_path)
+        field_list.append(url)
+        field_list.append(create_time)
+        field_list.append(is_deleted)
+        sql_sentence = "INSERT INTO crawled_column_img_info( website_id, img_path, url, create_time, is_deleted) VALUES (%d, %s, %s, %s, %d)"
         # print(sql_sentence)
-        return my_database_module.add_data(sql_sentence=sql_sentence)
+        return my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 图像资源处理主程序
     def loading_img_main(self):
