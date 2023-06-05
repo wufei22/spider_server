@@ -86,5 +86,6 @@ def start_grading():
     if request.method == "GET":
         my_main_crawled_process = main_crawled.MainCrawledProcess()
         my_main_crawled_process.multiprocessing_grading()
+        my_main_crawled_process.multiprocessing_task()
     else:
         return json.dumps({"code": "403", "message": "仅支持get方法"}, ensure_ascii=False)
