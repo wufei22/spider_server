@@ -1,9 +1,12 @@
 # coding=utf-8
+import time
+
 import bs4
 import datetime
 from multiprocessing import Pool
 from app.main.crawled_module import database_module, request_module, selenium_module, attach_handle_module, \
-    loading_img_module, paging_module, article_analyze_module, optical_character_recognition_module, crawled_logging_module
+    loading_img_module, paging_module, article_analyze_module, optical_character_recognition_module, \
+    crawled_logging_module
 from app.main.redis_module import *
 
 
@@ -30,11 +33,14 @@ class MainCrawledProcess(object):
         :return: True/False
         """
         # 1. 识别当前网站的反爬虫协议
+        print(input_info)
         my_request_module = request_module.RequestModule()
         if my_request_module.main_process(url=input_info["url"]):
             # 2. 获取所有a标签列表
             my_selenium_module = selenium_module.SeleniumModule()
             response_html = my_selenium_module.loading_html(input_url=input_info["url"])
+            time.sleep(10)
+            my_selenium_module.quit_browser()
             if response_html:
                 my_soup = bs4.BeautifulSoup(response_html, features="lxml")
                 a_list = my_soup.find_all("a")
@@ -46,7 +52,8 @@ class MainCrawledProcess(object):
                 # 4. 通过OCR识别图片的信息
                 for i in img_info_list:
                     my_optical_character_recognition_module = optical_character_recognition_module.OpticalCharacterRecognitionModule()
-                    i["column_name"] = my_optical_character_recognition_module.recognize_character_main(img_path=i["img_path"], img_type=i["img_type"])
+                    i["column_name"] = my_optical_character_recognition_module.recognize_character_main(
+                        img_path=i["img_path"], img_type=i["img_type"])
                 # 5. 过滤a标签
                 my_attach_handle_module = attach_handle_module.AttachHandle(website=input_info["url"],
                                                                             website_id=input_info["id"])
@@ -88,7 +95,8 @@ class MainCrawledProcess(object):
                 if filtered_a_list:
                     for n in filtered_a_list:
                         # print(n["first_level_column"])
-                        n_html = my_selenium_module.loading_html(input_url=n["first_level_column"])
+                        my_selenium_module1 = selenium_module.SeleniumModule()
+                        n_html = my_selenium_module1.loading_html(input_url=n["first_level_column"])
                         if n_html:
                             if my_attach_handle_module.html_is_article(html_src=n_html):
                                 my_paging_module = paging_module.PagingModule()
@@ -135,7 +143,8 @@ class MainCrawledProcess(object):
                 # 4. 通过OCR识别图片的信息
                 for _ in img_info_list:
                     my_optical_character_recognition_module = optical_character_recognition_module.OpticalCharacterRecognitionModule()
-                    _["column_name"] = my_optical_character_recognition_module.recognize_character_main(img_path=i["img_path"], img_type=i["img_type"])
+                    _["column_name"] = my_optical_character_recognition_module.recognize_character_main(
+                        img_path=i["img_path"], img_type=i["img_type"])
                 # 5. 过滤a标签
                 filtered_a_list = []
                 if a_list:
@@ -226,7 +235,8 @@ class MainCrawledProcess(object):
                 # 4. 通过OCR识别图片的信息
                 for _ in img_info_list:
                     my_optical_character_recognition_module = optical_character_recognition_module.OpticalCharacterRecognitionModule()
-                    _["column_name"] = my_optical_character_recognition_module.recognize_character_main(img_path=i["img_path"], img_type=i["img_type"])
+                    _["column_name"] = my_optical_character_recognition_module.recognize_character_main(
+                        img_path=i["img_path"], img_type=i["img_type"])
                 # 5. 过滤a标签
                 filtered_a_list = []
                 if a_list:
@@ -292,7 +302,8 @@ class MainCrawledProcess(object):
 
     # 采集栏目主方法
     def grading_column(self, website_id):
-        field_list = []
+        field_list = [website_id]
+        print(field_list)
         my_database_module = database_module.DatabaseModule()
         sql_sentence = "UPDATE crawled_website_info SET execution_status=0 WHERE id=%s"
         my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
@@ -646,14 +657,8 @@ class MainCrawledProcess(object):
             for i in my_data:
                 website_id_list.append(i[0])
         # print(website_id_list)
-        # 4.开启多进程
-        # 维持执行的进程总数为processes，当一个进程执行完毕后会添加新的进程进去
-        my_po = Pool(5)
         for website_id in website_id_list:
-            # 异步开启进程, 非阻塞型, 能够向池中添加进程而不等待其执行完毕就能再次执行循环
-            my_po.apply_async(func=self.one_crawled_task, args=(website_id,))
-        my_po.close()  # 关闭pool, 则不会有新的进程添加进去
-        my_po.join()  # 必须在join之前close, 然后join等待pool中所有的进程执行完毕
+            self.one_crawled_task(website_id=website_id)
         # 5.添加任务成功日志
         my_crawled_logging_module.end_task_log(task_status=2)
 
@@ -663,6 +668,24 @@ class MainCrawledProcess(object):
         my_redis_module = redis_main.RedisModule()
         my_redis_module.publish_theme(channel_name="crawled_task", send_message=0)
 
+    # 多进程采集栏目
+    def multiprocessing_grading(self):
+        # 获取需要执行爬虫任务的网站id列表
+        website_id_list = []
+        my_database_module = database_module.DatabaseModule()
+        sql_sentence = "SELECT id FROM crawled_website_info WHERE execution_status IN (1, 2, 3, 4) AND in_use=1 AND is_deleted=1;"
+        my_data = my_database_module.select_data(sql_sentence=sql_sentence)
+        if my_data:
+            for i in my_data:
+                website_id_list.append(i[0])
+        # my_po = Pool(1)
+        for website_id in website_id_list:
+            self.grading_column(website_id=website_id)
+            # 异步开启进程, 非阻塞型, 能够向池中添加进程而不等待其执行完毕就能再次执行循环
+        #     my_po.apply_async(func=self.grading_column, args=(website_id,))
+        # my_po.close()  # 关闭pool, 则不会有新的进程添加进去
+        # my_po.join()  # 必须在join之前close, 然后join等待pool中所有的进程执行完毕
+
 
 if __name__ == '__main__':
     main_crawled_process = MainCrawledProcess()
@@ -671,4 +694,5 @@ if __name__ == '__main__':
     # main_crawled_process.analyze_article(website_id=1)
     # main_crawled_process.multiprocessing_task()
     # main_crawled_process.crawled_article(website_id=16)
-    main_crawled_process.analyze_article(website_id=16)
+    # main_crawled_process.analyze_article(website_id=16)
+    main_crawled_process.multiprocessing_grading()

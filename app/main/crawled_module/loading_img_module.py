@@ -1,9 +1,8 @@
 import re
 import time
 import os
-import bs4
 import datetime
-from app.main.crawled_module import request_module, selenium_module, database_module
+from app.main.crawled_module import request_module, database_module
 
 
 class LoadingImg(object):
@@ -132,10 +131,10 @@ class LoadingImg(object):
 if __name__ == '__main__':
     test_website = "http://zwgk.changchun.gov.cn"
     test_website_id = 1
-    test_selenium = selenium_module.SeleniumModule()
-    html_src = test_selenium.loading_html(input_url=test_website)
-    test_soup = bs4.BeautifulSoup(html_src, "lxml")
-    test_a_list = test_soup.find_all("a")
-    test_loading_img = LoadingImg(website=test_website, website_id=test_website_id, a_list=test_a_list)
-    a = test_loading_img.loading_img_main()
-    print(a)
+    # test_selenium = selenium_module.SeleniumModule()
+    # html_src = test_selenium.loading_html(input_url=test_website)
+    # test_soup = bs4.BeautifulSoup(html_src, "lxml")
+    # test_a_list = test_soup.find_all("a")
+    # test_loading_img = LoadingImg(website=test_website, website_id=test_website_id, a_list=test_a_list)
+    # a = test_loading_img.loading_img_main()
+    # print(a)

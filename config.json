@@ -25,11 +25,11 @@
       }
     },
     "database_config": {
-      "ip": "124.70.211.45",
-      "port": 9100,
-      "database": "seebon_subsidy",
+      "ip": "127.0.0.1",
+      "port": 3306,
+      "database": "crawled",
       "username": "root",
-      "password": "chinasoft@123"
+      "password": "123456"
     },
     "redis_config": {
       "ip": "119.3.152.185",

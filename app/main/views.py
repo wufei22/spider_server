@@ -3,7 +3,6 @@ import flask
 from flask import request, Blueprint
 from app.main.crawled_module import *
 
-
 crawled = Blueprint('crawled', __name__)
 
 
@@ -77,5 +76,15 @@ def end_task():
         my_main_crawled_process = main_crawled.MainCrawledProcess()
         my_main_crawled_process.terminate_the_task()
         return json.dumps({"code": '200', "message": "ok", "data": {"end_task": True}}, ensure_ascii=False)
+    else:
+        return json.dumps({"code": "403", "message": "仅支持get方法"}, ensure_ascii=False)
+
+
+# 手动执行爬虫任务的接口
+@crawled.route('/startGrading', methods=["GET", "POST"])
+def start_grading():
+    if request.method == "GET":
+        my_main_crawled_process = main_crawled.MainCrawledProcess()
+        my_main_crawled_process.multiprocessing_grading()
     else:
         return json.dumps({"code": "403", "message": "仅支持get方法"}, ensure_ascii=False)

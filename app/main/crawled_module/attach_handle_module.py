@@ -264,6 +264,7 @@ class AttachHandle(object):
                             else:
                                 input_url = a_info["href"]
                             response_html = my_selenium_module.loading_html(input_url=input_url)
+                            my_selenium_module.quit_browser()
                             if not self.html_is_article(html_src=response_html):
                                 return True
 

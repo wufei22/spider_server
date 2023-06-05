@@ -19,6 +19,9 @@ start_task = api.model(
 end_task = api.model(
     "end_task", {"task_status": fields.Boolean(required=True, description="任务是否中止")}
 )
+start_grading = api.model(
+    "start_grading", {"grading_status": fields.Boolean(required=True, description="采集是否开始执行")}
+)
 
 
 @api.route("/isHomepage")
@@ -67,3 +70,12 @@ class EndTask(Resource):
     @api.marshal_with(end_task, envelope='data')
     def get(self):
         return end_task
+
+
+@api.route("/startGrading")
+class StartGrading(Resource):
+    """开始爬虫任务的接口"""
+
+    @api.marshal_with(start_grading, envelope='data')
+    def get(self):
+        return start_grading
