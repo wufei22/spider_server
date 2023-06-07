@@ -2,7 +2,9 @@ import re
 import time
 import os
 import datetime
-from app.main.crawled_module import request_module, database_module
+from app.main.crawled_module import request_module, database_module, optical_character_recognition_module
+from app.main.public_method import *
+import logging
 
 
 class LoadingImg(object):
@@ -21,7 +23,7 @@ class LoadingImg(object):
         self.current_page = current_page
         self.a_list = a_list
         # realpath方法即使是在其他地方调用也可以获取真实的绝对路径
-        self.local_path = os.path.abspath(os.path.join(os.path.realpath(__file__), r"..\..\..\.."))
+        self.local_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
 
     # 筛选a标签列表，如果当前a标签没有栏目文字，只有src，筛选出来添加进新列表
     def filter_tabel(self):
@@ -91,7 +93,7 @@ class LoadingImg(object):
         if img_info["img_path"]:
             img_path = img_info["img_path"]
         else:
-            img_path = 'NULL'
+            img_path = None
         url = img_info["url"]
         create_time = img_info["create_time"]
         is_deleted = img_info["is_deleted"]
@@ -107,25 +109,39 @@ class LoadingImg(object):
 
     # 图像资源处理主程序
     def loading_img_main(self):
-        # 1.过滤a标签
-        filter_tabel_list = self.filter_tabel()
-        # print(filter_tabel_list)
-        # 2.对过滤后的a标签进行数据清洗
-        cleaning_table_list = self.data_cleaning(filter_tabel_list=filter_tabel_list)
-        # print(cleaning_table_list)
-        # 3.下载图片资源
-        for i in cleaning_table_list:
-            # print(i)
-            img_path = self.downloading_img(img_url=i["src"], img_type=i["img_type"])
-            i["img_path"] = img_path
-            # 4.存储进数据库
-            img_info = {"website_id": self.website_id,
-                        "img_path": img_path,
-                        "url": i["href"],
-                        "create_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "is_deleted": 1}
-            self.save_img(img_info=img_info)
-        return cleaning_table_list
+        crawled_logging = logging_module.CrawledLogging()
+        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
+        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
+        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="ERROR")
+        try:
+            # 1.过滤a标签
+            filter_tabel_list = self.filter_tabel()
+            # print(filter_tabel_list)
+            # 2.对过滤后的a标签进行数据清洗
+            cleaning_table_list = self.data_cleaning(filter_tabel_list=filter_tabel_list)
+            # print(cleaning_table_list)
+            # 3.下载图片资源
+            for i in cleaning_table_list:
+                # print(i)
+                img_path = self.downloading_img(img_url=i["src"], img_type=i["img_type"])
+                i["img_path"] = img_path
+                # 4.存储进数据库
+                img_info = {"website_id": self.website_id,
+                            "img_path": img_path,
+                            "url": i["href"],
+                            "create_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            "is_deleted": 1}
+                self.save_img(img_info=img_info)
+            for _ in cleaning_table_list:
+                crawled_logger.debug(msg="开始识别ocr{i}".format(i=_))
+                my_optical_character_recognition_module = optical_character_recognition_module.OpticalCharacterRecognitionModule()
+                _["column_name"] = my_optical_character_recognition_module.recognize_character_main(
+                    img_path=_["img_path"], img_type=_["img_type"])
+            logging.shutdown()
+            return cleaning_table_list
+        except Exception as e:
+            crawled_logger.error(msg=e)
+            logging.shutdown()
 
 
 if __name__ == '__main__':

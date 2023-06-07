@@ -9,7 +9,8 @@ class DatabaseConn(object):
     """
     def __init__(self):
         # realpath方法即使是在其他地方调用也可以获取真实的绝对路径
-        local_path = os.path.abspath(os.path.join(os.path.realpath(__file__), r"..\..\..\.."))
+        local_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
+        # print(local_path)
         dic_path = os.path.join(local_path, "config.json")
         with open(dic_path, "r") as f:
             dic_data = json.load(f)

@@ -1,6 +1,8 @@
 import re
 import bs4
+import logging
 from app.main.crawled_module import selenium_module, database_module, handle_attachment_module
+from app.main.public_method import *
 
 
 class ArticleAnalyzeModule(object):
@@ -23,6 +25,7 @@ class ArticleAnalyzeModule(object):
             my_selenium_module = selenium_module.SeleniumModule()
             html_list = my_selenium_module.loading_article_page_html(article_id=self.article_info["id"],
                                                                      article_url=self.article_info["url"])
+            my_selenium_module.quit_browser()
         return html_list
 
     # 获取文章标题
@@ -56,7 +59,7 @@ class ArticleAnalyzeModule(object):
                 date_pattern = "^\d{4}-\d{1,2}-\d{1,2}"
                 if re.match(pattern=date_pattern, string=meta_content):
                     # print(meta_content)
-                    return meta_content
+                    return re.search(pattern=date_pattern, string=meta_content).group()
 
     # 获取官方生效日期
     @staticmethod
@@ -147,10 +150,10 @@ class ArticleAnalyzeModule(object):
         else:
             article_text = None
         field_list.append(article_text)
-        print(field_list)
+        # print(field_list)
         my_database = database_module.DatabaseModule()
         sql_sentence = "INSERT INTO crawled_analized_article_info( id, url, title, article_government_unit, article_publish_date, having_attachment, effective_date, article_category, is_national, article_text) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        print(sql_sentence)
+        # print(sql_sentence)
         return my_database.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     # 更新文章信息表字段，将已分析的文章分析状态改为已分析
@@ -164,48 +167,58 @@ class ArticleAnalyzeModule(object):
 
     # 文章处理主程序
     def article_analyze_main(self):
-        # 1.获取页面资源
-        html_list = self.get_article_html()
-        # 2.获取文章标题
-        article_title = self.get_article_title(html_src=html_list[0])
-        # 3.获取发文单位
-        article_unit = self.get_article_unit()
-        # 4.获取官方发布日期
-        article_publish_date = self.get_article_publish_date(html_src=html_list[0])
-        # 5.获取官方生效日期
-        article_effective_date = self.get_article_effective_date()
-        # 6.获取文章类别
-        article_type = self.get_article_type()
-        # 7.判断文章是否为全国性政策的文件
-        article_effective_boundary = self.get_article_effective_boundary()
-        # 8.获取文章内容
-        article_text = self.get_article_text(html_list=html_list)
-        # 9.附件处理
-        my_handle_attachment_module = handle_attachment_module.HandleAttachmentModule(article_info={
-            "website_url": self.article_info["website_url"],
-            "website_id": self.article_info["website_id"],
-            "column_id": self.article_info["column_id"],
-            "article_id": self.article_info["id"],
-            "article_url": self.article_info["url"]})
-        if my_handle_attachment_module.if_having_attachment(html_list[0]):
-            having_attachment = 1
-        else:
-            having_attachment = 0
-        my_handle_attachment_module.handle_attachment_main(html_src=html_list[0])
-        # 10.文章解析结果存储进数据库
-        article_info = {"id": self.article_info["id"],
-                        "url": self.article_info["url"],
-                        "title": article_title,
-                        "article_government_unit": article_unit,
-                        "article_publish_date": article_publish_date,
-                        "having_attachment": having_attachment,
-                        "effective_date": article_effective_date,
-                        "article_category": article_type,
-                        "is_national": article_effective_boundary,
-                        "article_text": article_text}
-        self.save_article_info(article_info=article_info)
-        # 11.更新字段
-        self.update_article_state()
+        crawled_logging = logging_module.CrawledLogging()
+        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
+        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
+        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="DEBUG")
+        crawled_logger.debug(msg="开始进行文章处理")
+        try:
+            # 1.获取页面资源
+            html_list = self.get_article_html()
+            # 2.获取文章标题
+            article_title = self.get_article_title(html_src=html_list[0])
+            # 3.获取发文单位
+            article_unit = self.get_article_unit()
+            # 4.获取官方发布日期
+            article_publish_date = self.get_article_publish_date(html_src=html_list[0])
+            # 5.获取官方生效日期
+            article_effective_date = self.get_article_effective_date()
+            # 6.获取文章类别
+            article_type = self.get_article_type()
+            # 7.判断文章是否为全国性政策的文件
+            article_effective_boundary = self.get_article_effective_boundary()
+            # 8.获取文章内容
+            article_text = self.get_article_text(html_list=html_list)
+            # 9.附件处理
+            my_handle_attachment_module = handle_attachment_module.HandleAttachmentModule(article_info={
+                "website_url": self.article_info["website_url"],
+                "website_id": self.article_info["website_id"],
+                "column_id": self.article_info["column_id"],
+                "article_id": self.article_info["id"],
+                "article_url": self.article_info["url"]})
+            if my_handle_attachment_module.if_having_attachment(html_list[0]):
+                having_attachment = 1
+            else:
+                having_attachment = 0
+            my_handle_attachment_module.handle_attachment_main(html_src=html_list[0])
+            # 10.文章解析结果存储进数据库
+            article_info = {"id": self.article_info["id"],
+                            "url": self.article_info["url"],
+                            "title": article_title,
+                            "article_government_unit": article_unit,
+                            "article_publish_date": article_publish_date,
+                            "having_attachment": having_attachment,
+                            "effective_date": article_effective_date,
+                            "article_category": article_type,
+                            "is_national": article_effective_boundary,
+                            "article_text": article_text}
+            self.save_article_info(article_info=article_info)
+            # 11.更新字段
+            self.update_article_state()
+            logging.shutdown()
+        except Exception as e:
+            crawled_logger.error(msg=e)
+            logging.shutdown()
 
 
 if __name__ == '__main__':

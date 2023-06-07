@@ -13,17 +13,7 @@ from selenium import webdriver
 from app.main.crawled_module import selenium_module, database_module
 
 
-def test_task(task_id):
-    print("任务：%d 正在执行中\n" % task_id)
-    time.sleep(random.randint(5, 8))
-    print("任务：%d 执行完毕\n" % task_id)
+meta_content = "2023-06-02 23∶06"
+date_pattern = "^\d{4}-\d{1,2}-\d{1,2}"
+print(re.search(pattern=date_pattern, string=meta_content).group())
 
-
-if __name__ == "__main__":
-    test_po = Pool(5)
-    test_task_list = [1, 2, 3, 4, 5]
-    for i in test_task_list:
-        test_po.apply_async(func=test_task, args=(i,))
-    test_po.close()
-    test_po.join()
-    print("这是主进程，测试等待")

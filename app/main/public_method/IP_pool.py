@@ -12,7 +12,7 @@ warnings.filterwarnings("ignore")
 class BuildingIPPool(object):
     def __init__(self):
         # realpath方法即使是在其他地方调用也可以获取真实的绝对路径
-        self.local_path = os.path.abspath(os.path.join(os.path.realpath(__file__), r"..\..\..\.."))
+        self.local_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
 
     # 获取token
     def get_token(self):

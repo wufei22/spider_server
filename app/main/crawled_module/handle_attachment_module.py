@@ -22,7 +22,7 @@ class HandleAttachmentModule(object):
         """
         self.article_info = article_info
         # realpath方法即使是在其他地方调用也可以获取真实的绝对路径
-        self.local_path = os.path.abspath(os.path.join(os.path.realpath(__file__), r"..\..\..\.."))
+        self.local_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
 
     # 判断页面是否有附件信息
     @staticmethod
@@ -72,11 +72,11 @@ class HandleAttachmentModule(object):
                                                     img_url=attachment_url)
         # 判断是否创建文件夹，若没有，则创建文件夹，文件夹目录为./attachment/主网站id/当前页面id/当前日期
         if attachment_data:
-            folder = self.local_path + "/attachment/" + str(self.article_info["website_id"]) + "/" + str(
-                self.article_info["column_id"]) + "/" + time.strftime("%Y_%m_%d", time.localtime())
+            folder = os.path.join(os.path.join(os.path.join(os.path.join(self.local_path, "attachment"), str(self.article_info["website_id"])), str(self.article_info["column_id"])), time.strftime("%Y_%m_%d", time.localtime()))
             if not os.path.exists(folder):
                 os.makedirs(folder)
-            img_path = folder + "/" + str(time.time()).replace(".", "") + "." + attachment_type
+            img_name = str(time.time()).replace(".", "") + "." + attachment_type
+            img_path = os.path.join(folder, img_name)
             with open(img_path, 'wb') as f:
                 f.write(attachment_data)
             return img_path

@@ -41,6 +41,9 @@
       "port": 9981,
       "username": "minIo",
       "password": "minIo123456"
+    },
+    "ocr_config": {
+      "url": "http://192.168.150.119:9100/predict/chinese_ocr_db_crnn_mobile"
     }
   }
 }

@@ -1,7 +1,9 @@
 import json
 import flask
 from flask import request, Blueprint
+from multiprocessing import process
 from app.main.crawled_module import *
+from concurrent.futures import ThreadPoolExecutor
 
 crawled = Blueprint('crawled', __name__)
 
@@ -83,9 +85,16 @@ def end_task():
 # 手动执行爬虫任务的接口
 @crawled.route('/startGrading', methods=["GET", "POST"])
 def start_grading():
-    if request.method == "GET":
-        my_main_crawled_process = main_crawled.MainCrawledProcess()
-        my_main_crawled_process.multiprocessing_grading()
-        my_main_crawled_process.multiprocessing_task()
+    if request.method == "POST":
+        param_dic = flask.request.get_json()
+        executor = ThreadPoolExecutor(1)
+        # print(param_dic)
+        if "website_id" in param_dic:
+            website_id = param_dic["website_id"]
+            my_main_crawled_process = main_crawled.MainCrawledProcess()
+            executor.submit(my_main_crawled_process.multiprocessing_grading, website_id)
+            return json.dumps({"code": "200", "message": "ok"}, ensure_ascii=False)
+        else:
+            return json.dumps({"code": "401", "message": "缺少参数"}, ensure_ascii=False)
     else:
-        return json.dumps({"code": "403", "message": "仅支持get方法"}, ensure_ascii=False)
+        return json.dumps({"code": "403", "message": "仅支持post方法"}, ensure_ascii=False)

@@ -5,7 +5,7 @@ from minio import Minio
 
 class MinioModule(object):
     def __init__(self):
-        local_path = os.path.abspath(os.path.join(os.path.realpath(__file__), r"..\..\..\.."))
+        local_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
         dic_path = os.path.join(local_path, "config.json")
         with open(dic_path, "r") as f:
             dic_data = json.load(f)

@@ -9,7 +9,7 @@ class CrawledLogging(object):
     日志模块
     """
     def __init__(self):
-        self.local_path = os.path.abspath(os.path.join(os.path.realpath(__file__), r"..\..\..\.."))
+        self.local_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
 
     def make_log_dir(self, log_dir_name):
         """

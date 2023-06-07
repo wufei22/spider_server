@@ -26,24 +26,35 @@ class RequestModule(object):
 
     # 识别robots.txt协议
     def recognize_robot_agreement(self, robots_url):
-        # 1.测试是否有robots.txt地址
-        s = requests.session()
-        s.keep_alive = False
-        response = s.request(method="get",
-                             url=robots_url,
-                             # proxies=self.proxies,
-                             headers=self.header,
-                             verify=False)
-        # print(response.status_code, type(response.status_code))
-        # 2.若有，则分析该协议，检测其是否可以爬虫
-        if response.status_code == 200:
-            robots = RobotFileParser()
-            robots.set_url(robots_url)
-            robots.read()
-            # print(robots.can_fetch('', robots_url))
-            return robots.can_fetch('', robots_url)
-        # 3. 若没有，则直接爬虫
-        else:
+        crawled_logging = logging_module.CrawledLogging()
+        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
+        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
+        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="DEBUG")
+        try:
+            # 1.测试是否有robots.txt地址
+            s = requests.session()
+            s.keep_alive = False
+            response = s.request(method="get",
+                                 url=robots_url,
+                                 # proxies=self.proxies,
+                                 headers=self.header,
+                                 verify=False)
+            # print(response.status_code, type(response.status_code))
+            # 2.若有，则分析该协议，检测其是否可以爬虫
+            if response.status_code == 200:
+                robots = RobotFileParser()
+                robots.set_url(robots_url)
+                robots.read()
+                # print(robots.can_fetch('', robots_url))
+                logging.shutdown()
+                return robots.can_fetch('', robots_url)
+            # 3. 若没有，则直接爬虫
+            else:
+                logging.shutdown()
+                return True
+        except Exception as e:
+            crawled_logger.error(msg=e)
+            logging.shutdown()
             return True
 
     # 提取首页网址
@@ -58,7 +69,7 @@ class RequestModule(object):
         crawled_logging = logging_module.CrawledLogging()
         crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
         crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
-        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="ERROR")
+        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="DEBUG")
         if robot_agreement:
             try:
                 s = requests.session()
@@ -72,14 +83,14 @@ class RequestModule(object):
                     return response
                 else:
                     # print("请求失败")
-                    crawled_logger.info("%s该网址请求失败" % url)
+                    crawled_logger.info("%s该网址使用request请求失败" % url)
                     logging.shutdown()
-                    return False
+                    return True
             except Exception as e:
                 # print(e)
                 crawled_logger.error(msg=e)
                 logging.shutdown()
-                return False
+                return True
         else:
             # print("基于安全协议，该网站禁止爬虫")
             crawled_logger.info("%s基于安全协议，该网站禁止爬虫" % url)
@@ -95,17 +106,28 @@ class RequestModule(object):
 
     # 发送请求下载图片主程序
     def get_img(self, current_url, img_url):
-        s = requests.session()
-        s.keepalive = False
-        my_header = self.header
-        my_header["Referer"] = current_url
-        my_response = s.request(method="get",
-                                url=img_url,
-                                # proxies=self.proxies,
-                                headers=my_header,
-                                verify=False)
-        if my_response.status_code == 200:
-            return my_response.content
+        crawled_logging = logging_module.CrawledLogging()
+        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
+        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
+        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="DEBUG")
+        try:
+            s = requests.session()
+            s.keepalive = False
+            my_header = self.header
+            my_header["Referer"] = current_url
+            my_response = s.request(method="get",
+                                    url=img_url,
+                                    # proxies=self.proxies,
+                                    headers=my_header,
+                                    verify=False)
+            if my_response.status_code == 200:
+                logging.shutdown()
+                return my_response.content
+            else:
+                logging.shutdown()
+        except Exception as e:
+            crawled_logger.error(msg=e)
+            logging.shutdown()
 
 
 if __name__ == '__main__':
