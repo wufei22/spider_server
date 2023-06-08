@@ -59,6 +59,20 @@ class CrawledLogging(object):
             logger.addHandler(fh)
         return logger
 
+    def debug_log_main(self, message):
+        crawled_dir_path = self.make_log_dir(log_dir_name="crawled_log")
+        crawled_log_filename = self.get_log_filename(dir_path=crawled_dir_path)
+        crawled_logger = self.log(log_filename=crawled_log_filename, level="DEBUG")
+        crawled_logger.debug(msg=message)
+        logging.shutdown()
+
+    def error_log_main(self, message):
+        crawled_dir_path = self.make_log_dir(log_dir_name="crawled_log")
+        crawled_log_filename = self.get_log_filename(dir_path=crawled_dir_path)
+        crawled_logger = self.log(log_filename=crawled_log_filename, level="ERROR")
+        crawled_logger.error(msg=message)
+        logging.shutdown()
+
     def regular_cleaning(self, log_path_name):
         """
         清理日志功能

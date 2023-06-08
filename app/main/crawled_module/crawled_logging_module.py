@@ -7,9 +7,9 @@ class CrawledLoggingModule(object):
     def start_task_log():
         my_database_module = database_module.DatabaseModule()
         task_id_data = my_database_module.select_data(sql_sentence="SELECT MAX(task_id) FROM crawled_log_info")
-        # print(task_id_data)
+        # print(task_id_data[0][0])
         field_list = []
-        if task_id_data:
+        if task_id_data[0][0]:
             task_id = task_id_data[0][0] + 1
             # print(task_id)
         else:
@@ -21,13 +21,11 @@ class CrawledLoggingModule(object):
         sql_sentence = "INSERT INTO crawled_log_info( log_type, task_id, start_time, task_status) VALUES (1, %s, %s, 0)"
         # print(sql_sentence)
         my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
+        return task_id
 
     @staticmethod
-    def end_task_log(task_status):
+    def end_task_log(task_status, task_id):
         field_list = []
-        my_database_module = database_module.DatabaseModule()
-        task_id_data = my_database_module.select_data(sql_sentence="SELECT MAX(task_id) FROM crawled_log_info")
-        task_id = task_id_data[0][0]
         task_end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         field_list.append(task_end_time)
         field_list.append(task_status)
@@ -37,11 +35,8 @@ class CrawledLoggingModule(object):
         my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
     @staticmethod
-    def start_website_log(website_id):
+    def start_website_log(website_id, task_id):
         field_list = []
-        my_database_module = database_module.DatabaseModule()
-        task_id_data = my_database_module.select_data(sql_sentence="SELECT MAX(task_id) FROM crawled_log_info")
-        task_id = task_id_data[0][0]
         task_start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         my_database_module = database_module.DatabaseModule()
         field_list.append(task_id)
@@ -51,11 +46,8 @@ class CrawledLoggingModule(object):
         my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     @staticmethod
-    def end_website_log(website_id, task_status):
+    def end_website_log(website_id, task_status, task_id):
         field_list = []
-        my_database_module = database_module.DatabaseModule()
-        task_id_data = my_database_module.select_data(sql_sentence="SELECT MAX(task_id) FROM crawled_log_info")
-        task_id = task_id_data[0][0]
         task_end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         my_database_module = database_module.DatabaseModule()
         field_list.append(task_end_time)
@@ -66,11 +58,8 @@ class CrawledLoggingModule(object):
         my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
     @staticmethod
-    def start_article_log(website_id, article_id):
+    def start_article_log(website_id, article_id, task_id):
         field_list = []
-        my_database_module = database_module.DatabaseModule()
-        task_id_data = my_database_module.select_data(sql_sentence="SELECT MAX(task_id) FROM crawled_log_info")
-        task_id = task_id_data[0][0]
         task_start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         my_database_module = database_module.DatabaseModule()
         field_list.append(task_id)
@@ -81,11 +70,8 @@ class CrawledLoggingModule(object):
         my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     @staticmethod
-    def end_article_log(website_id, article_id, task_status):
+    def end_article_log(website_id, article_id, task_status, task_id):
         field_list = []
-        my_database_module = database_module.DatabaseModule()
-        task_id_data = my_database_module.select_data(sql_sentence="SELECT MAX(task_id) FROM crawled_log_info")
-        task_id = task_id_data[0][0]
         task_end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         my_database_module = database_module.DatabaseModule()
         field_list.append(task_end_time)

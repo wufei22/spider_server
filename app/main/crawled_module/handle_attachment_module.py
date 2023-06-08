@@ -4,6 +4,7 @@ import os
 import time
 import datetime
 from app.main.crawled_module import database_module, selenium_module, request_module
+from app.main.public_method import *
 
 
 class HandleAttachmentModule(object):
@@ -108,26 +109,31 @@ class HandleAttachmentModule(object):
 
     # 处理附件主程序
     def handle_attachment_main(self, html_src):
-        # 1.判断页面是否有附件信息
-        if self.if_having_attachment(html_src):
-            # 2.寻找并判断附件信息,进行数据清洗，并返回列表
-            attachment_info_list = self.find_attachment_link(html_src)
-            # print(attachment_info_list)
-            if attachment_info_list:
-                # 3.根据href下载链接
-                for i in attachment_info_list:
-                    # print(i)
-                    attachment_path = self.downloading_attachment(attachment_url=i["href"],
-                                                                  attachment_type=i["attachment_type"])
-                    i["attachment_path"] = attachment_path
-                    # 4.存储进数据库
-                    attachment_info = {"article_id": self.article_info["article_id"],
-                                       "name": i["name"],
-                                       "path": attachment_path,
-                                       "create_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                       "is_deleted": 1}
-                    self.save_attachment(attachment_info=attachment_info)
-                return attachment_info_list
+        crawled_logging = logging_module.CrawledLogging()
+        try:
+            # 1.判断页面是否有附件信息
+            if self.if_having_attachment(html_src):
+                # 2.寻找并判断附件信息,进行数据清洗，并返回列表
+                attachment_info_list = self.find_attachment_link(html_src)
+                # print(attachment_info_list)
+                if attachment_info_list:
+                    # 3.根据href下载链接
+                    for i in attachment_info_list:
+                        # print(i)
+                        attachment_path = self.downloading_attachment(attachment_url=i["href"],
+                                                                      attachment_type=i["attachment_type"])
+                        i["attachment_path"] = attachment_path
+                        # 4.存储进数据库
+                        attachment_info = {"article_id": self.article_info["article_id"],
+                                           "name": i["name"],
+                                           "path": attachment_path,
+                                           "create_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                           "is_deleted": 1}
+                        self.save_attachment(attachment_info=attachment_info)
+                    return attachment_info_list
+        except Exception as e:
+            # print(e)
+            crawled_logging.error_log_main(message=e)
 
 
 if __name__ == '__main__':

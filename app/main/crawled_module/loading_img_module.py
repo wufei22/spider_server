@@ -4,7 +4,6 @@ import os
 import datetime
 from app.main.crawled_module import request_module, database_module, optical_character_recognition_module
 from app.main.public_method import *
-import logging
 
 
 class LoadingImg(object):
@@ -110,9 +109,6 @@ class LoadingImg(object):
     # 图像资源处理主程序
     def loading_img_main(self):
         crawled_logging = logging_module.CrawledLogging()
-        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
-        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
-        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="ERROR")
         try:
             # 1.过滤a标签
             filter_tabel_list = self.filter_tabel()
@@ -133,15 +129,14 @@ class LoadingImg(object):
                             "is_deleted": 1}
                 self.save_img(img_info=img_info)
             for _ in cleaning_table_list:
-                crawled_logger.debug(msg="开始识别ocr{i}".format(i=_))
+                crawled_logging.debug_log_main(message="开始识别ocr{i}".format(i=_))
                 my_optical_character_recognition_module = optical_character_recognition_module.OpticalCharacterRecognitionModule()
                 _["column_name"] = my_optical_character_recognition_module.recognize_character_main(
                     img_path=_["img_path"], img_type=_["img_type"])
-            logging.shutdown()
             return cleaning_table_list
         except Exception as e:
-            crawled_logger.error(msg=e)
-            logging.shutdown()
+            print(e)
+            crawled_logging.error_log_main(message=e)
 
 
 if __name__ == '__main__':

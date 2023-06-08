@@ -1,5 +1,4 @@
 import re
-import logging
 import datetime
 import os
 import time
@@ -20,9 +19,6 @@ class AttachHandle(object):
     # 从数据库中获取判定重复的url列表和column列表
     def get_column(self):
         crawled_logging = logging_module.CrawledLogging()
-        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
-        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
-        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="DEBUG")
         try:
             my_database_module = database_module.DatabaseModule()
             sql_sentence = "SELECT `column_name`, " \
@@ -38,23 +34,17 @@ class AttachHandle(object):
                     column_name_list.append(i[0])
                     column_list.append(i[1])
                 column_dict = {"column_list": column_list, "column_name_list": column_name_list}
-                crawled_logger.debug(msg="成功获取栏目列表")
-                logging.shutdown()
+                crawled_logging.debug_log_main(message="成功获取栏目列表")
                 return column_dict
             else:
-                crawled_logger.debug(msg="获取栏目列表失败")
-                logging.shutdown()
+                crawled_logging.debug_log_main(message="获取栏目列表失败")
         except Exception as e:
             # print(e)
-            crawled_logger.error(msg=e)
-            logging.shutdown()
+            crawled_logging.error_log_main(message=e)
 
     # 从数据库中获取判断重复的文章列表
     def get_article(self):
         crawled_logging = logging_module.CrawledLogging()
-        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
-        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
-        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="DEBUG")
         try:
             my_database_module = database_module.DatabaseModule()
             sql_sentence = "SELECT url FROM crawled_article_info WHERE website_id={website_id} AND is_deleted=1".format(
@@ -64,15 +54,13 @@ class AttachHandle(object):
             if my_data:
                 for i in my_data:
                     article_list.append(i[0])
-                crawled_logger.debug(msg="获取文章列表成功")
+                crawled_logging.debug_log_main(message="获取文章列表成功")
             else:
-                crawled_logger.debug(msg="获取文章列表失败")
-            logging.shutdown()
+                crawled_logging.debug_log_main(message="获取文章列表失败")
             return article_list
         except Exception as e:
             # print(e)
-            crawled_logger.error(msg=e)
-            logging.shutdown()
+            crawled_logging.error_log_main(message=e)
 
     # 提取首页网址
     @staticmethod
@@ -216,11 +204,17 @@ class AttachHandle(object):
         :return: column_name
         """
         if a_info.text:
-            return a_info.text
+            attach_name = a_info.text
         elif "title" in a_info.attrs:
-            return a_info["title"]
+            attach_name = a_info["title"]
         elif "alt" in a_info.attrs:
-            return a_info["alt"]
+            attach_name = a_info["alt"]
+        else:
+            attach_name = None
+        if attach_name:
+            attach_name = attach_name.replace("\n", "")
+            attach_name = attach_name.replace("\t", "")
+            return attach_name
 
     # 判断是否为文章页
     @staticmethod
@@ -393,14 +387,12 @@ class AttachHandle(object):
     # 获取所有一级栏目列表
     def get_all_first_column(self):
         crawled_logging = logging_module.CrawledLogging()
-        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
-        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
-        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="DEBUG")
         try:
             my_database_module = database_module.DatabaseModule()
             sql_sentence = "SELECT id, parent_id, `column_name`, column_url, having_page " \
                            "FROM crawled_column_info WHERE website_id={website_id} AND is_deleted=1 " \
                            "AND in_use=1 AND parent_id IS NULL;".format(website_id=self.website_id)
+            # print(sql_sentence)
             my_data = my_database_module.select_data(sql_sentence=sql_sentence)
             column_list = []
             if my_data:
@@ -410,22 +402,17 @@ class AttachHandle(object):
                                         "column_name": i[2],
                                         "column_url": i[3],
                                         "having_page": i[4]})
-                crawled_logger.info(msg="获取所有栏目列表成功")
+                crawled_logging.debug_log_main(message="获取所有栏目列表成功")
             else:
-                crawled_logger.info(msg="获取所有栏目列表失败")
-            logging.shutdown()
+                crawled_logging.debug_log_main(message="获取所有栏目列表失败")
             return column_list
         except Exception as e:
             # print(e)
-            crawled_logger.error(msg=e)
-            logging.shutdown()
+            crawled_logging.error_log_main(message=e)
 
     # 获取所有二级栏目列表
     def get_all_second_column(self):
         crawled_logging = logging_module.CrawledLogging()
-        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
-        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
-        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="DEBUG")
         try:
             my_database_module = database_module.DatabaseModule()
             sql_sentence = "SELECT id, parent_id, `column_name`, column_url, having_page " \
@@ -440,22 +427,17 @@ class AttachHandle(object):
                                         "column_name": i[2],
                                         "column_url": i[3],
                                         "having_page": i[4]})
-                crawled_logger.info(msg="获取所有栏目列表成功")
+                crawled_logging.debug_log_main(message="获取所有栏目列表成功")
             else:
-                crawled_logger.info(msg="获取所有栏目列表失败")
-            logging.shutdown()
+                crawled_logging.debug_log_main(message="获取所有栏目列表失败")
             return column_list
         except Exception as e:
             # print(e)
-            crawled_logger.error(msg=e)
-            logging.shutdown()
+            crawled_logging.error_log_main(message=e)
 
     # 获取所有栏目列表
     def get_all_column(self):
         crawled_logging = logging_module.CrawledLogging()
-        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
-        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
-        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="DEBUG")
         try:
             my_database_module = database_module.DatabaseModule()
             sql_sentence = "SELECT id, parent_id, `column_name`, column_url, having_page " \
@@ -470,30 +452,25 @@ class AttachHandle(object):
                                         "column_name": i[2],
                                         "column_url": i[3],
                                         "having_page": i[4]})
-                crawled_logger.info(msg="获取所有栏目列表成功")
+                crawled_logging.debug_log_main(message="获取所有栏目列表成功")
             else:
-                crawled_logger.info(msg="获取所有栏目列表失败")
-            logging.shutdown()
+                crawled_logging.debug_log_main(message="获取所有栏目列表失败")
             return column_list
         except Exception as e:
             # print(e)
-            crawled_logger.error(msg=e)
-            logging.shutdown()
+            crawled_logging.error_log_main(message=e)
 
     # a标签过滤主程序
     def column_filter_main(self, a_list, img_info_list, parent_id):
         crawled_logging = logging_module.CrawledLogging()
-        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
-        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
-        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="DEBUG")
         try:
             filtered_a_list = []
             final_list = []
             if a_list:
                 # print(a_list)
-                crawled_logger.debug(msg="开始过滤标签信息")
+                crawled_logging.debug_log_main(message="开始过滤标签信息")
                 for i in a_list:
-                    crawled_logger.debug(msg="开始过滤标签{i}".format(i=i))
+                    crawled_logging.debug_log_main(message="开始过滤标签{i}".format(i=i))
                     if self.attach_filter(a_info=i):
                         if i["href"][0] == "/":
                             input_url = self.website + i["href"]
@@ -510,16 +487,17 @@ class AttachHandle(object):
                                                 "in_use": 1,
                                                 "is_deleted": 1,
                                                 "remark": None})
+                # print(filtered_a_list)
                 if filtered_a_list:
-                    crawled_logger.debug(msg="过滤后的a标签列表为{filtered_a_list}".format(filtered_a_list=filtered_a_list))
+                    crawled_logging.debug_log_main(message="过滤后的a标签列表为{filtered_a_list}".format(filtered_a_list=filtered_a_list))
                 else:
-                    crawled_logger.debug(msg="未获取到过滤后的a标签列表信息")
+                    crawled_logging.debug_log_main(message="未获取到过滤后的a标签列表信息")
             else:
-                crawled_logger.debug(msg="没有采集到标签信息")
+                crawled_logging.debug_log_main(message="没有采集到标签信息")
             if img_info_list:
-                crawled_logger.debug(msg="开始过滤图像信息")
+                crawled_logging.debug_log_main(message="开始过滤图像信息")
                 for _ in img_info_list:
-                    crawled_logger.debug(msg="正在过滤图像标签{_}".format(_=_))
+                    crawled_logging.debug_log_main(message="正在过滤图像标签{_}".format(_=_))
                     if self.attach_img_filter(img_info=_):
                         if _["href"][0] == "/":
                             input_url = self.website + _["href"]
@@ -537,54 +515,52 @@ class AttachHandle(object):
                                                 "is_deleted": 1,
                                                 "remark": None})
             else:
-                crawled_logger.debug(msg="没有采集到图像信息")
+                crawled_logging.debug_log_main(message="没有采集到图像信息")
             # 排除文章的url,并判断是否有分页标识
-            crawled_logger.debug(msg="开始通过article标识鉴别列表页")
+            crawled_logging.debug_log_main(message="开始通过article标识鉴别列表页")
             if filtered_a_list:
-                # 测试阶段只取一条
-                # filtered_a_list = filtered_a_list[0:1:]
+                # # 测试阶段只取5条
+                # if len(filtered_a_list) > 2:
+                #     filtered_a_list = filtered_a_list[0:2:]
                 for m in filtered_a_list:
-                    crawled_logger.debug(msg="开始通过article标识鉴别列表页{m}".format(m=m))
+                    crawled_logging.debug_log_main(message="开始通过article标识鉴别列表页{m}".format(m=m))
                     my_selenium_module = selenium_module.SeleniumModule()
                     n_html = my_selenium_module.loading_html(input_url=m["column_url"])
                     my_selenium_module.quit_browser()
                     if n_html:
                         self.downloading_html(n_html, url=m["column_url"], website_id=m["website_id"])
-                        if self.html_is_article(html_src=n_html):
-                            my_paging_module = paging_module.PagingModule()
-                            if my_paging_module.recognize_page(html_src=n_html):
-                                m["having_page"] = 1
-                            else:
-                                m["having_page"] = 0
-                            final_list.append(m)
+                        # if self.html_is_article(html_src=n_html):
+                        my_paging_module = paging_module.PagingModule()
+                        if my_paging_module.recognize_page(html_src=n_html):
+                            m["having_page"] = 1
+                        else:
+                            m["having_page"] = 0
+                        final_list.append(m)
             else:
-                crawled_logger.debug(msg="没有过滤后的数据")
+                crawled_logging.debug_log_main(message="没有过滤后的数据")
             # 7. 将过滤后的栏目存储进数据库
-            crawled_logger.debug(msg="存储进入数据库")
+            crawled_logging.debug_log_main(message="存储进入数据库")
+            # print(final_list)
             if final_list:
                 for n in final_list:
-                    crawled_logger.debug(msg="将栏目信息存储进数据库{n}".format(n=n))
+                    crawled_logging.debug_log_main(message="将栏目信息存储进数据库{n}".format(n=n))
                     self.save_column(column_info=n)
             else:
-                crawled_logger.debug(msg="最终没有栏目存储进数据库")
-            logging.shutdown()
+                crawled_logging.debug_log_main(message="最终没有栏目存储进数据库")
         except Exception as e:
-            crawled_logger.error(msg=e)
-            logging.shutdown()
+            # print(e)
+            crawled_logging.error_log_main(message=e)
 
     # 根据栏目遍历文章,并将文章存储入库
     def crawled_article_main(self):
         crawled_logging = logging_module.CrawledLogging()
-        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
-        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
-        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="DEBUG")
         try:
             # {"column_id": i[0], "parent_id": i[1], "column_name": i[2], "column_url": i[3], "having_page": i[4]}
             column_list = self.get_all_column()
             if column_list:
                 for i in column_list:
                     # 没有分页配置的情况
-                    crawled_logger.debug(msg="根据栏目获取文章列表{i}".format(i=i))
+                    crawled_logging.debug_log_main(message="根据栏目获取文章列表{i}".format(i=i))
                     if i["having_page"] == 0:
                         my_selenium_module = selenium_module.SeleniumModule()
                         column_html = my_selenium_module.loading_html(input_url=i["column_url"])
@@ -596,7 +572,7 @@ class AttachHandle(object):
                             article_list = []
                             if a_list:
                                 for a_info in a_list:
-                                    crawled_logger.debug(msg="文章过滤{a_info}".format(a_info=a_info))
+                                    crawled_logging.debug_log_main(message="文章过滤{a_info}".format(a_info=a_info))
                                     if self.attach_article_filter(a_info=a_info):
                                         # 判断是否有分页标识
                                         my_paging_module = paging_module.PagingModule()
@@ -629,7 +605,7 @@ class AttachHandle(object):
                                                                  "is_deleted": 1})
                             # 将文章存储进数据库
                             for article_info in article_list:
-                                crawled_logger.debug(msg="将文章存储进数据库{article_info}".format(article_info=article_info))
+                                crawled_logging.debug_log_main(message="将文章存储进数据库{article_info}".format(article_info=article_info))
                                 self.save_article(article_info=article_info)
                     # 有分页配置的情况
                     else:
@@ -644,7 +620,7 @@ class AttachHandle(object):
                             article_list = []
                             if a_list:
                                 for a_info in a_list:
-                                    crawled_logger.debug(msg="文章过滤{a_info}".format(a_info=a_info))
+                                    crawled_logging.debug_log_main(message="文章过滤{a_info}".format(a_info=a_info))
                                     if self.attach_article_filter(a_info=a_info):
                                         # 判断是否有分页标识
                                         my_paging_module = paging_module.PagingModule()
@@ -673,21 +649,20 @@ class AttachHandle(object):
                                                                      "is_deleted": 1})
                             # 将文章存储进数据库
                             for article_info in article_list:
-                                crawled_logger.debug(msg="文章存储进数据库库{article_info}".format(article_info=article_info))
+                                crawled_logging.debug_log_main(message="文章存储进数据库库{article_info}".format(article_info=article_info))
                                 self.save_article(article_info=article_info)
-                crawled_logger.debug(msg="获取文章成功{website_id}".format(website_id=self.website_id))
-                logging.shutdown()
+                crawled_logging.debug_log_main(message="获取文章成功{website_id}".format(website_id=self.website_id))
                 return True
             else:
-                crawled_logger.debug(msg="未获取到栏目信息{website_id}".format(website_id=self.website_id))
-                logging.shutdown()
+                crawled_logging.debug_log_main(message="未获取到栏目信息{website_id}".format(website_id=self.website_id))
         except Exception as e:
-            crawled_logger.error(msg=e)
-            logging.shutdown()
+            print(e)
+            crawled_logging.error_log_main(message=e)
 
 
 if __name__ == '__main__':
-    test_attach_handle = AttachHandle(website=None, website_id=1)
-    test_data = test_attach_handle.get_all_column()
-    print(test_data)
-
+    test_attach_handle = AttachHandle(website="http://rsj.huhhot.gov.cn", website_id=28)
+    # test_data = test_attach_handle.get_all_column()
+    # print(test_data)
+    test_column_list = test_attach_handle.get_all_first_column()
+    print(test_column_list)

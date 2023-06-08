@@ -1,6 +1,5 @@
 import re
 import bs4
-import logging
 from app.main.crawled_module import selenium_module, database_module, handle_attachment_module
 from app.main.public_method import *
 
@@ -168,10 +167,7 @@ class ArticleAnalyzeModule(object):
     # 文章处理主程序
     def article_analyze_main(self):
         crawled_logging = logging_module.CrawledLogging()
-        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
-        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
-        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="DEBUG")
-        crawled_logger.debug(msg="开始进行文章处理")
+        crawled_logging.debug_log_main(message="开始进行文章处理")
         try:
             # 1.获取页面资源
             html_list = self.get_article_html()
@@ -215,10 +211,9 @@ class ArticleAnalyzeModule(object):
             self.save_article_info(article_info=article_info)
             # 11.更新字段
             self.update_article_state()
-            logging.shutdown()
         except Exception as e:
-            crawled_logger.error(msg=e)
-            logging.shutdown()
+            # print(e)
+            crawled_logging.error_log_main(message=e)
 
 
 if __name__ == '__main__':

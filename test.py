@@ -10,10 +10,12 @@ import json
 import os
 from multiprocessing import Pool
 from selenium import webdriver
-from app.main.crawled_module import selenium_module, database_module
+from app.main.crawled_module import selenium_module, database_module, attach_handle_module
 
 
-meta_content = "2023-06-02 23∶06"
-date_pattern = "^\d{4}-\d{1,2}-\d{1,2}"
-print(re.search(pattern=date_pattern, string=meta_content).group())
+a = "111"
+a = a.replace("\n", "")
+print(a)
+
+
 

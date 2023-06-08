@@ -1,7 +1,6 @@
 import os
 import random
 import time
-import logging
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from app.main.public_method import *
@@ -97,9 +96,6 @@ class SeleniumModule(object):
     # 利用selenium加载数据，返回加载的页面数据
     def loading_html(self, input_url):
         crawled_logging = logging_module.CrawledLogging()
-        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
-        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
-        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="DEBUG")
         try:
             # 打开网页,返回页面资源数据
             self.browser.get(url=input_url)
@@ -107,8 +103,8 @@ class SeleniumModule(object):
             current_page_source = self.browser.page_source
             return current_page_source
         except Exception as e:
-            crawled_logger.error(msg=e)
-            logging.shutdown()
+            # print(e)
+            crawled_logging.error_log_main(message=e)
 
     # 检测xpath配置是否正确
     def check_xpath(self, input_url, xpath):
@@ -126,9 +122,6 @@ class SeleniumModule(object):
     # 关闭浏览器连接
     def quit_browser(self):
         crawled_logging = logging_module.CrawledLogging()
-        crawled_dir_path = crawled_logging.make_log_dir(log_dir_name="crawled_log")
-        crawled_log_filename = crawled_logging.get_log_filename(dir_path=crawled_dir_path)
-        crawled_logger = crawled_logging.log(log_filename=crawled_log_filename, level="DEBUG")
         if self.browser:
             try:
                 # 获取所有handles
@@ -143,9 +136,9 @@ class SeleniumModule(object):
                     self.browser.close()
                     self.browser.quit()
             except Exception as e:
+                # print(e)
                 self.browser.quit()
-                crawled_logger.error(msg=e)
-        logging.shutdown()
+                crawled_logging.error_log_main(message=e)
 
 
 if __name__ == '__main__':
