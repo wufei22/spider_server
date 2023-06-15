@@ -16,6 +16,36 @@ class AttachHandle(object):
         self.website = website
         self.website_id = website_id
 
+    def href_trans(self, href):
+        if href:
+            if len(href) >= 4:
+                if href[:4:] != "http" and href[:4:] != "Http" and href[:4:] != "HTTP":
+                    if href[0] == "/":
+                        input_url = self.website + href
+                    elif href[0] == ".":
+                        if href[1] == ".":
+                            input_url = self.website + href[2::]
+                        else:
+                            input_url = self.website + href[1::]
+                    else:
+                        input_url = self.website + "/" + href
+                else:
+                    input_url = href
+            else:
+                if href[0] == "/":
+                    input_url = self.website + href
+                elif href[0] == ".":
+                    if len(href) >= 2:
+                        if href[1] == ".":
+                            input_url = self.website + href[2::]
+                        else:
+                            input_url = self.website + href[1::]
+                    else:
+                        input_url = self.website + href[1::]
+                else:
+                    input_url = self.website + "/" + href
+            return input_url
+
     # 从数据库中获取判定重复的url列表和column列表
     def get_column(self):
         crawled_logging = logging_module.CrawledLogging()
@@ -98,12 +128,24 @@ class AttachHandle(object):
     def filter_with_href(a_info):
         if "href" in a_info.attrs:
             if a_info["href"]:
-                if a_info["href"] != "/" and a_info["href"] != "./":
+                if a_info["href"] != "/" and a_info["href"] != "./" and a_info["href"] != "#" and a_info["href"] != "../":
                     return True
 
     # 根据是否在同一域名下来进行过滤
     def filter_with_domain(self, a_info):
-        if self.analyze_url(url=a_info["href"]) == self.analyze_url(url=self.website) or a_info["href"][0] == "/" or a_info["href"][0] == ".":
+        if len(a_info["href"]) >= 4:
+            if a_info["href"][:4:] == "http" or a_info["href"][:4:] == "Http" or a_info["href"][:4:] == "HTTP":
+                if self.analyze_url(url=a_info["href"]) == self.analyze_url(url=self.website):
+                    return True
+            else:
+                if len(a_info["href"]) >= 10:
+                    if a_info["href"][:10:] == "javascript":
+                        return False
+                    else:
+                        return True
+                else:
+                    return True
+        else:
             return True
 
     # 根据链接后缀不为文件名来后缀
@@ -175,12 +217,12 @@ class AttachHandle(object):
             return True
 
     # 和数据库进行查重校验
-    def filter_with_duplicates(self, column_name, url):
+    def filter_with_duplicates(self, url):
         column_dict = self.get_column()
         if column_dict:
-            if column_name not in column_dict["column_name_list"]:
-                if url not in column_dict["column_list"]:
-                    return True
+            # if column_name not in column_dict["column_name_list"]:
+            if url not in column_dict["column_list"]:
+                return True
         else:
             return True
 
@@ -261,9 +303,9 @@ class AttachHandle(object):
                                             # 排除所有name出现在链接里的标签
                                             if self.filter_name_with_href(column_name=column_name,
                                                                           url=a_info["href"]):
+                                                input_url = self.href_trans(href=a_info["href"])
                                                 # 和数据库进行查重校验
-                                                if self.filter_with_duplicates(column_name=column_name,
-                                                                               url=a_info["href"]):
+                                                if self.filter_with_duplicates(url=input_url):
                                                     # 根据算法来匹配栏目关键词
                                                     if self.filter_with_nlp():
                                                         return True
@@ -284,17 +326,13 @@ class AttachHandle(object):
                     # 去除/index来判断是否与主网站重复
                     if self.filter_with_index(a_info=a_info):
                         # 和数据库进行查重校验
-                        if self.filter_article_with_duplicates(url=a_info["href"]):
+                        input_url = self.href_trans(href=a_info["href"])
+                        if self.filter_article_with_duplicates(url=input_url):
                             # 判断是否为文章
                             my_selenium_module = selenium_module.SeleniumModule()
-                            if a_info["href"][0] == "/":
-                                input_url = self.website + a_info["href"]
-                            else:
-                                input_url = a_info["href"]
                             response_html = my_selenium_module.loading_html(input_url=input_url)
-                            my_selenium_module.quit_browser()
                             if not self.html_is_article(html_src=response_html):
-                                return True
+                                return response_html
 
     # img过滤
     def attach_img_filter(self, img_info):
@@ -324,8 +362,9 @@ class AttachHandle(object):
                                         if self.filter_name_with_length(column_name=column_name):
                                             # 排除所有name出现在链接里的标签
                                             if self.filter_name_with_href(column_name=column_name, url=url):
+                                                input_url = self.href_trans(href=url)
                                                 # 和数据库进行查重校验
-                                                if self.filter_with_duplicates(column_name=column_name, url=url):
+                                                if self.filter_with_duplicates(url=input_url):
                                                     # 根据算法来匹配栏目关键词
                                                     if self.filter_with_nlp():
                                                         return True
@@ -460,6 +499,32 @@ class AttachHandle(object):
             # print(e)
             crawled_logging.error_log_main(message=e)
 
+    # 修改栏目状态
+    @staticmethod
+    def update_column_status(column_id):
+        crawled_logging = logging_module.CrawledLogging()
+        try:
+            field_list = [column_id]
+            my_database_module = database_module.DatabaseModule()
+            sql_sentence = "UPDATE crawled_column_info SET in_use=0 WHERE id=%s"
+            my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
+        except Exception as e:
+            # print(e)
+            crawled_logging.error_log_main(message=e)
+
+    # 修改网站状态
+    @staticmethod
+    def update_website_status(website_id):
+        crawled_logging = logging_module.CrawledLogging()
+        try:
+            field_list = [website_id]
+            my_database_module = database_module.DatabaseModule()
+            sql_sentence = "UPDATE crawled_website_info SET execution_status=5 WHERE id=%s"
+            my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
+        except Exception as e:
+            # print(e)
+            crawled_logging.error_log_main(message=e)
+
     # a标签过滤主程序
     def column_filter_main(self, a_list, img_info_list, parent_id):
         crawled_logging = logging_module.CrawledLogging()
@@ -472,12 +537,7 @@ class AttachHandle(object):
                 for i in a_list:
                     crawled_logging.debug_log_main(message="开始过滤标签{i}".format(i=i))
                     if self.attach_filter(a_info=i):
-                        if i["href"][0] == "/":
-                            input_url = self.website + i["href"]
-                        elif i["href"][0] == ".":
-                            input_url = self.website + i["href"][1::]
-                        else:
-                            input_url = i["href"]
+                        input_url = self.href_trans(href=i["href"])
                         filtered_a_list.append({"website_id": self.website_id,
                                                 "parent_id": parent_id,
                                                 "column_name": self.get_attach_name(i),
@@ -499,12 +559,7 @@ class AttachHandle(object):
                 for _ in img_info_list:
                     crawled_logging.debug_log_main(message="正在过滤图像标签{_}".format(_=_))
                     if self.attach_img_filter(img_info=_):
-                        if _["href"][0] == "/":
-                            input_url = self.website + _["href"]
-                        elif _["href"][0] == ".":
-                            input_url = self.website + _["href"][1::]
-                        else:
-                            input_url = _["href"]
+                        input_url = self.href_trans(href=_["href"])
                         filtered_a_list.append({"website_id": self.website_id,
                                                 "parent_id": parent_id,
                                                 "column_name": _["column_name"],
@@ -520,13 +575,12 @@ class AttachHandle(object):
             crawled_logging.debug_log_main(message="开始通过article标识鉴别列表页")
             if filtered_a_list:
                 # # 测试阶段只取5条
-                # if len(filtered_a_list) > 2:
-                #     filtered_a_list = filtered_a_list[0:2:]
+                if len(filtered_a_list) > 2:
+                    filtered_a_list = filtered_a_list[0:2:]
                 for m in filtered_a_list:
                     crawled_logging.debug_log_main(message="开始通过article标识鉴别列表页{m}".format(m=m))
                     my_selenium_module = selenium_module.SeleniumModule()
                     n_html = my_selenium_module.loading_html(input_url=m["column_url"])
-                    my_selenium_module.quit_browser()
                     if n_html:
                         self.downloading_html(n_html, url=m["column_url"], website_id=m["website_id"])
                         # if self.html_is_article(html_src=n_html):
@@ -545,6 +599,7 @@ class AttachHandle(object):
                 for n in final_list:
                     crawled_logging.debug_log_main(message="将栏目信息存储进数据库{n}".format(n=n))
                     self.save_column(column_info=n)
+                return final_list
             else:
                 crawled_logging.debug_log_main(message="最终没有栏目存储进数据库")
         except Exception as e:
@@ -564,7 +619,6 @@ class AttachHandle(object):
                     if i["having_page"] == 0:
                         my_selenium_module = selenium_module.SeleniumModule()
                         column_html = my_selenium_module.loading_html(input_url=i["column_url"])
-                        my_selenium_module.quit_browser()
                         if column_html:
                             column_soup = bs4.BeautifulSoup(column_html, "lxml")
                             a_list = column_soup.find_all("a")
@@ -576,15 +630,8 @@ class AttachHandle(object):
                                     if self.attach_article_filter(a_info=a_info):
                                         # 判断是否有分页标识
                                         my_paging_module = paging_module.PagingModule()
-                                        if a_info["href"][0] == "/":
-                                            input_url = self.website + a_info["href"]
-                                        elif a_info["href"][0] == ".":
-                                            input_url = self.website + a_info["href"][1::]
-                                        else:
-                                            input_url = a_info["href"]
-                                        my_selenium_module = selenium_module.SeleniumModule()
-                                        html_article_src = my_selenium_module.loading_html(input_url=input_url)
-                                        my_selenium_module.quit_browser()
+                                        input_url = self.href_trans(href=a_info["href"])
+                                        html_article_src = self.attach_article_filter(a_info=a_info)
                                         if my_paging_module.recognize_page(html_src=html_article_src):
                                             article_list.append({"website_id": self.website_id,
                                                                  "column_id": i["column_id"],
@@ -603,60 +650,74 @@ class AttachHandle(object):
                                                                  "having_page": 0,
                                                                  "is_analized": 0,
                                                                  "is_deleted": 1})
-                            # 将文章存储进数据库
-                            for article_info in article_list:
-                                crawled_logging.debug_log_main(message="将文章存储进数据库{article_info}".format(article_info=article_info))
-                                self.save_article(article_info=article_info)
+                            else:
+                                self.update_column_status(column_id=i["column_id"])
+                            if article_list:
+                                # 将文章存储进数据库
+                                for article_info in article_list:
+                                    crawled_logging.debug_log_main(message="将文章存储进数据库{article_info}".format(article_info=article_info))
+                                    self.save_article(article_info=article_info)
+                            else:
+                                self.update_column_status(column_id=i["column_id"])
+                        else:
+                            self.update_column_status(column_id=i["column_id"])
                     # 有分页配置的情况
                     else:
                         my_selenium_module = selenium_module.SeleniumModule()
                         column_html_list = my_selenium_module.loading_column_page_html(column_id=i["column_id"],
                                                                                        column_url=i["column_url"])
-                        my_selenium_module.quit_browser()
-                        for column_html in column_html_list:
-                            column_soup = bs4.BeautifulSoup(column_html, "lxml")
-                            a_list = column_soup.find_all("a")
-                            # 文章过滤
-                            article_list = []
-                            if a_list:
-                                for a_info in a_list:
-                                    crawled_logging.debug_log_main(message="文章过滤{a_info}".format(a_info=a_info))
-                                    if self.attach_article_filter(a_info=a_info):
-                                        # 判断是否有分页标识
-                                        my_paging_module = paging_module.PagingModule()
-                                        my_selenium_module = selenium_module.SeleniumModule()
-                                        html_third_article_src = my_selenium_module.loading_html(
-                                            input_url=a_info["href"])
-                                        my_selenium_module.quit_browser()
-                                        if html_third_article_src:
-                                            if my_paging_module.recognize_page(html_src=html_third_article_src):
-                                                article_list.append({"website_id": self.website_id,
-                                                                     "column_id": i["column_id"],
-                                                                     "url": a_info["href"],
-                                                                     "create_time": datetime.datetime.now().strftime(
-                                                                         "%Y-%m-%d %H:%M:%S"),
-                                                                     "having_page": 1,
-                                                                     "is_analized": 0,
-                                                                     "is_deleted": 1})
-                                            else:
-                                                article_list.append({"website_id": self.website_id,
-                                                                     "column_id": i["column_id"],
-                                                                     "url": a_info["href"],
-                                                                     "create_time": datetime.datetime.now().strftime(
-                                                                         "%Y-%m-%d %H:%M:%S"),
-                                                                     "having_page": 0,
-                                                                     "is_analized": 0,
-                                                                     "is_deleted": 1})
-                            # 将文章存储进数据库
-                            for article_info in article_list:
-                                crawled_logging.debug_log_main(message="文章存储进数据库库{article_info}".format(article_info=article_info))
-                                self.save_article(article_info=article_info)
+                        if column_html_list:
+                            for column_html in column_html_list:
+                                column_soup = bs4.BeautifulSoup(column_html, "lxml")
+                                a_list = column_soup.find_all("a")
+                                # 文章过滤
+                                article_list = []
+                                if a_list:
+                                    for a_info in a_list:
+                                        crawled_logging.debug_log_main(message="文章过滤{a_info}".format(a_info=a_info))
+                                        if self.attach_article_filter(a_info=a_info):
+                                            # 判断是否有分页标识
+                                            input_url = self.href_trans(href=a_info["href"])
+                                            my_paging_module = paging_module.PagingModule()
+                                            my_selenium_module = selenium_module.SeleniumModule()
+                                            html_third_article_src = my_selenium_module.loading_html(
+                                                input_url=input_url)
+                                            if html_third_article_src:
+                                                if my_paging_module.recognize_page(html_src=html_third_article_src):
+                                                    article_list.append({"website_id": self.website_id,
+                                                                         "column_id": i["column_id"],
+                                                                         "url": input_url,
+                                                                         "create_time": datetime.datetime.now().strftime(
+                                                                             "%Y-%m-%d %H:%M:%S"),
+                                                                         "having_page": 1,
+                                                                         "is_analized": 0,
+                                                                         "is_deleted": 1})
+                                                else:
+                                                    article_list.append({"website_id": self.website_id,
+                                                                         "column_id": i["column_id"],
+                                                                         "url": input_url,
+                                                                         "create_time": datetime.datetime.now().strftime(
+                                                                             "%Y-%m-%d %H:%M:%S"),
+                                                                         "having_page": 0,
+                                                                         "is_analized": 0,
+                                                                         "is_deleted": 1})
+                                else:
+                                    self.update_column_status(column_id=i["column_id"])
+                                if article_list:
+                                    # 将文章存储进数据库
+                                    for article_info in article_list:
+                                        crawled_logging.debug_log_main(message="文章存储进数据库库{article_info}".format(article_info=article_info))
+                                        self.save_article(article_info=article_info)
+                                else:
+                                    self.update_column_status(column_id=i["column_id"])
+                        else:
+                            self.update_column_status(column_id=i["column_id"])
                 crawled_logging.debug_log_main(message="获取文章成功{website_id}".format(website_id=self.website_id))
                 return True
             else:
                 crawled_logging.debug_log_main(message="未获取到栏目信息{website_id}".format(website_id=self.website_id))
         except Exception as e:
-            print(e)
+            # print(e)
             crawled_logging.error_log_main(message=e)
 
 

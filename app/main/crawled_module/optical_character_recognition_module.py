@@ -19,9 +19,9 @@ class OpticalCharacterRecognitionModule(object):
         try:
             local_path = os.path.abspath(
                 os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
-            print(local_path)
+            # print(local_path)
             dic_path = os.path.join(local_path, "config.json")
-            print(dic_path)
+            # print(dic_path)
             with open(dic_path, "r") as f:
                 dic_data = json.load(f)
             url = dic_data["dependencies"]["ocr_config"]["url"]
@@ -32,5 +32,7 @@ class OpticalCharacterRecognitionModule(object):
             return r.json()["results"]["data"][0]["text"]
             # return "测试"
         except Exception as e:
-            print(e)
+            # print(e)
             crawled_logging.error_log_main(message=e)
+
+

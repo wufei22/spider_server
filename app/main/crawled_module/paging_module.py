@@ -78,18 +78,36 @@ class PagingModule(object):
         :return:
         """
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "SELECT id, column_id, column_page_type, column_page_xpath, column_default_page, column_max_page FROM crawled_column_page_config_info WHERE is_deleted=1 AND column_id={column_id} AND can_use=1;".format(
+        sql_sentence = "SELECT id, column_id, column_page_type, column_page_xpath, column_default_page, column_max_page, xpath_index FROM crawled_column_page_config_info WHERE is_deleted=1 AND column_id={column_id} AND can_use=1 ORDER BY xpath_index;".format(
             column_id=column_id)
         my_data = my_database_module.select_data(sql_sentence=sql_sentence)
         # print(my_data)
         if my_data:
-            column_page_config_dic = {"column_config_id": my_data[0][0],
-                                      "column_id": my_data[0][1],
-                                      "column_page_type": my_data[0][2],
-                                      "column_page_xpath": my_data[0][3],
-                                      "column_default_page": my_data[0][4],
-                                      "column_max_page": my_data[0][5]}
-            return column_page_config_dic
+            if len(my_data) == 1:
+                column_page_config = [{"column_config_id": my_data[0][0],
+                                       "column_id": my_data[0][1],
+                                       "column_page_type": my_data[0][2],
+                                       "column_page_xpath": my_data[0][3],
+                                       "column_default_page": my_data[0][4],
+                                       "column_max_page": my_data[0][5],
+                                       "xpath_index": my_data[0][6]}]
+                return column_page_config
+            else:
+                column_page_config = [{"column_config_id": my_data[0][0],
+                                       "column_id": my_data[0][1],
+                                       "column_page_type": my_data[0][2],
+                                       "column_page_xpath": my_data[0][3],
+                                       "column_default_page": my_data[0][4],
+                                       "column_max_page": my_data[0][5],
+                                       "xpath_index": my_data[0][6]},
+                                      {"column_config_id": my_data[1][0],
+                                       "column_id": my_data[1][1],
+                                       "column_page_type": my_data[1][2],
+                                       "column_page_xpath": my_data[1][3],
+                                       "column_default_page": my_data[1][4],
+                                       "column_max_page": my_data[1][5],
+                                       "xpath_index": my_data[1][6]}]
+                return column_page_config
 
     # 将文章页面的分页配置存储进数据库
     @staticmethod
@@ -145,17 +163,36 @@ class PagingModule(object):
         :return:
         """
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "SELECT id, article_id, article_page_type, article_page_xpath, article_max_page FROM crawled_article_page_config_info WHERE is_deleted=1 AND article_id={article_id} AND can_use=1;".format(
+        sql_sentence = "SELECT id, article_id, article_page_type, article_page_xpath, article_max_page, xpath_index FROM crawled_article_page_config_info WHERE is_deleted=1 AND article_id={article_id} AND can_use=1;".format(
             article_id=article_id)
         my_data = my_database_module.select_data(sql_sentence=sql_sentence)
         # print(my_data)
         if my_data:
-            article_page_config_dic = {"article_config_id": my_data[0][0],
+            if len(my_data) == 1:
+                article_page_config = [{"article_config_id": my_data[0][0],
                                        "article_id": my_data[0][1],
                                        "article_page_type": my_data[0][2],
                                        "article_page_xpath": my_data[0][3],
-                                       "article_max_page": my_data[0][4]}
-            return article_page_config_dic
+                                       "article_default_page": my_data[0][4],
+                                       "article_max_page": my_data[0][5],
+                                       "xpath_index": my_data[0][6]}]
+                return article_page_config
+            else:
+                article_page_config = [{"article_config_id": my_data[0][0],
+                                       "article_id": my_data[0][1],
+                                       "article_page_type": my_data[0][2],
+                                       "article_page_xpath": my_data[0][3],
+                                       "article_default_page": my_data[0][4],
+                                       "article_max_page": my_data[0][5],
+                                       "xpath_index": my_data[0][6]},
+                                      {"article_config_id": my_data[1][0],
+                                       "article_id": my_data[1][1],
+                                       "article_page_type": my_data[1][2],
+                                       "article_page_xpath": my_data[1][3],
+                                       "article_default_page": my_data[1][4],
+                                       "article_max_page": my_data[1][5],
+                                       "xpath_index": my_data[1][6]}]
+                return article_page_config
 
 
 if __name__ == '__main__':

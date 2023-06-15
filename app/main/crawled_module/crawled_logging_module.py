@@ -24,14 +24,15 @@ class CrawledLoggingModule(object):
         return task_id
 
     @staticmethod
-    def end_task_log(task_status, task_id):
+    def end_task_log(task_status, task_id, remarks):
         field_list = []
         task_end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         field_list.append(task_end_time)
         field_list.append(task_status)
+        field_list.append(remarks)
         field_list.append(task_id)
         my_database_module = database_module.DatabaseModule()
-        sql_sentence = "UPDATE crawled_log_info SET end_time=%s,task_status=%s WHERE log_type=1 AND task_id=%s"
+        sql_sentence = "UPDATE crawled_log_info SET end_time=%s,task_status=%s, remarks=%s WHERE log_type=1 AND task_id=%s"
         my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
     @staticmethod
@@ -46,15 +47,16 @@ class CrawledLoggingModule(object):
         my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     @staticmethod
-    def end_website_log(website_id, task_status, task_id):
+    def end_website_log(website_id, task_status, task_id, remarks):
         field_list = []
         task_end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         my_database_module = database_module.DatabaseModule()
         field_list.append(task_end_time)
         field_list.append(task_status)
+        field_list.append(remarks)
         field_list.append(task_id)
         field_list.append(website_id)
-        sql_sentence = "UPDATE crawled_log_info SET end_time=%s, task_status=%s WHERE log_type=2 AND task_id=%s AND website_id=%s"
+        sql_sentence = "UPDATE crawled_log_info SET end_time=%s, task_status=%s , remarks=%s WHERE log_type=2 AND task_id=%s AND website_id=%s"
         my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
     @staticmethod
@@ -70,16 +72,17 @@ class CrawledLoggingModule(object):
         my_database_module.add_data(sql_sentence=sql_sentence, field_list=field_list)
 
     @staticmethod
-    def end_article_log(website_id, article_id, task_status, task_id):
+    def end_article_log(website_id, article_id, task_status, task_id, remarks):
         field_list = []
         task_end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         my_database_module = database_module.DatabaseModule()
         field_list.append(task_end_time)
         field_list.append(task_status)
+        field_list.append(remarks)
         field_list.append(task_id)
         field_list.append(website_id)
         field_list.append(article_id)
-        sql_sentence = "UPDATE crawled_log_info SET end_time=%s, task_status=%s WHERE log_type=2 AND task_id=%s AND website_id=%s AND article_id=%s"
+        sql_sentence = "UPDATE crawled_log_info SET end_time=%s, task_status=%s, remarks=%s WHERE log_type=2 AND task_id=%s AND website_id=%s AND article_id=%s"
         my_database_module.update_data(sql_sentence=sql_sentence, field_list=field_list)
 
 
